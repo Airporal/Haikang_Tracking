@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SdkCfg>
+<logLevel>0</logLevel><!-- 0-表示关闭日志，1-表示只输出ERROR错误日志，2-输出ERROR错误信息和DEBUG调试信息，3-输出ERROR错误信息、DEBUG调试信息和INFO普通信息等所有信息-->
+<logDirectory>C:\USBSDKLog</logDirectory><!--志文件的路径-->
+<autoDelete>true</autoDelete><!--是否删除超出的文件数-->
+<Filter>true</Filter><!--慎用该节点，对接三方设备出问题不给予支持，发布前请做好充分测试--><!--枚举时是否过滤非海康设备  true：开启过滤  false：关闭过滤-->
+<Separate>false</Separate><!--枚举时是否音视频设备分离  true：分离  false：不分离-->
+<UsbLogLevel>2</UsbLogLevel><!--USB驱动日志级别：0-关闭，1-只输出ERROR日志，2-输出WARNING和ERROR日志，3-输出INFO日志，4-输出DEBUG日志-->
+<TransferNum>100</TransferNum><!--libuvc中用于传输码流的容器个数，配置范围1-100，默认为100，其他值则表示创建对应数值的容器个数-->
+<FrameNum>4</FrameNum><!--SDK内部码流缓冲区帧数，配置范围0-30，默认4，配置0时，SDK内部不进行码流缓存-->
+<WriteFile>false</WriteFile><!--是否开启码流写文件，排查问题时开启，正常使用时建议关闭  true：开启  false：关闭-->
+</SdkCfg>

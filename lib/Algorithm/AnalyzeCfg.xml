@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<AnalyzeCfg version="1.0.0" type="config">
+    <analyze_0><!-- FR -->
+        <module_name>FaceAnalysisPluginDFR</module_name>
+        <init>AnalyzeInitDFR</init>
+        <fini>AnalyzeFiniDFR</fini>
+        <get_key>AnalyzeGetKeyDFR</get_key>
+		<check_ecpt>AnalyzeCheckEcptDFR</check_ecpt>
+        <create>AnalyzeCreateDFR</create>
+        <destroy>AnalyzeDestroyDFR</destroy>
+        <input_data>AnalyzeInputDataDFR</input_data>
+		<set_callback>AnalyzeSetCallBackDFR</set_callback>
+		<set_config>AnalyzeSetConfigDFR</set_config>
+		<get_config>AnalyzeGetConfigDFR</get_config>
+		
+		<!--		typedef enum _HIA_FACE_OPERATION_TYPE_
+		{
+			HIA_FACE_DETECT = 0x00000001,                         // 人脸检测，图片支持
+			HIA_BUILD_MODEL = 0x00000002,                         // 人脸建模，图片支持
+			HIA_COMP_MODEL  = 0x00000004,                         // 模型比对，图片支持
+			HIA_FACE_ATTR   = 0x00000008,                         // 人脸属性，图片支持
+			HIA_OBJ_DETECT  = 0x00000010,                         // 目标检测，视频支持
+			HIA_FACE_MARK   = 0x00000020,                         // 人脸评分，图片支持
+			HIA_LAND_MARK   = 0x00000040,                         // 特征定位
+			HIA_LIVE_DET    = 0x00000080                          // 活体检测
+		}HIA_FACE_OPERATION_TYPE;  -->
+		<operation>233</operation>
+    </analyze_0>
+	<analyze_1><!-- FD -->
+        <module_name>FaceAnalysisPlugin</module_name>
+        <init>AnalyzeInit</init>
+        <fini>
+		</fini>
+        <get_key>AnalyzeGetKey</get_key>
+		<check_ecpt>AnalyzeCheckEcpt</check_ecpt>
+        <create>AnalyzeCreate</create>
+        <destroy>AnalyzeDestroy</destroy>
+        <input_data>AnalyzeInputData</input_data>
+		<set_callback>AnalyzeSetCallBack</set_callback>
+		<set_config>AnalyzeSetConfig</set_config>
+		<get_config>AnalyzeGetConfig</get_config>
+		<sub_function>AnalyzeSubFunction</sub_function>
+    </analyze_1>
+	<analyze_3>
+        <module_name>TPCAnalysisPlugin</module_name>
+        <init>TPCPlugin_Init</init>
+        <fini>TPCPlugin_Fini</fini>
+        <get_key>TPCPlugin_GetKey</get_key>
+		<check_ecpt>TPCPlugin_CheckEcpt</check_ecpt>
+        <create>TPCPlugin_Create</create>
+        <destroy>TPCPlugin_Destroy</destroy>
+        <input_data>TPCPlugin_InputData</input_data>
+		<set_callback>TPCPlugin_SetCallBack</set_callback>
+		<set_config>TPCPlugin_SetConfig</set_config>
+		<get_config>TPCPlugin_GetConfig</get_config>
+    </analyze_3>
+    <analyze_4>
+        <module_name>VTSAnalysisPlugin</module_name>
+        <init>VTS_Init</init>
+        <fini>VTS_Fini</fini>
+        <get_key>VTS_GetKey</get_key>
+        <check_ecpt>VTS_CheckEcpt</check_ecpt>
+        <create>VTS_Create</create>
+        <destroy>VTS_Destroy</destroy>
+        <input_data>VTS_InputData</input_data>
+        <set_callback>VTS_SetCallBack</set_callback>
+        <set_config>VTS_SetConfig</set_config>
+        <get_config>VTS_GetConfig</get_config>
+    </analyze_4>
+  <analyze_10>
+    <module_name>ATMIASAnalysisPlugin</module_name>
+    <init>ATMIAS_Init</init>
+    <fini>ATMIAS_Fini</fini>
+    <get_key>ATMIAS_GetKey</get_key>
+    <check_ecpt>ATMIAS_CheckEcpy</check_ecpt>
+    <create>ATMIAS_Create</create>
+    <destroy>ATMIAS_Destroy</destroy>
+    <input_data>ATMIAS_InputData</input_data>
+    <set_callback>ATMIAS_SetCallBack</set_callback>
+    <set_config>ATMIAS_SetConfig</set_config>
+    <get_config>ATMIAS_GetConfig</get_config>
+  </analyze_10>
+  <analyze_11>
+    <module_name>ATMABNAnalysisPlugin</module_name>
+    <init>ATMABN_Init</init>
+    <fini>ATMABN_Fini</fini>
+    <get_key>ATMABN_GetKey</get_key>
+    <check_ecpt>ATMABN_CheckEcpy</check_ecpt>
+    <create>ATMABN_Create</create>
+    <destroy>ATMABN_Destroy</destroy>
+    <input_data>ATMABN_InputData</input_data>
+    <set_callback>ATMABN_SetCallBack</set_callback>
+    <set_config>ATMABN_SetConfig</set_config>
+    <get_config>ATMABN_GetConfig</get_config>
+  </analyze_11>
+  <analyze_13>
+    <module_name>DBDAnalysisPlugin</module_name>
+    <init>DBD_Init</init>
+    <fini>DBD_Fini</fini>
+    <get_key>DBD_GetKey</get_key>
+    <check_ecpt>DBD_CheckEcpt</check_ecpt>
+    <create>DBD_Create</create>
+    <destroy>DBD_Destroy</destroy>
+    <input_data>DBD_InputData</input_data>
+    <set_callback>DBD_SetCallBack</set_callback>
+    <set_config>DBD_SetConfig</set_config>
+    <get_config>DBD_GetConfig</get_config>
+  </analyze_13>
+  <analyze_14>
+    <module_name>VSLImageSplicePlugin</module_name>
+    <init>VSL_Init</init>
+    <fini>VSL_Fini</fini>
+    <get_key>VSL_GetKey</get_key>
+    <check_ecpt>VSL_CheckEcpt</check_ecpt>
+    <create>VSL_Create</create>
+    <destroy>VSL_Destroy</destroy>
+    <input_data>VSL_InputData</input_data>
+    <set_callback>VSL_SetCallBack</set_callback>
+    <set_config>VSL_SetConfig</set_config>
+    <get_config>VSL_GetConfig</get_config>
+  </analyze_14>
+  <analyze_15>
+    <module_name>KFSAnalysisPlugin</module_name>
+    <init>KFS_Init</init>
+    <fini>KFS_Fini</fini>
+    <get_key>KFS_GetKey</get_key>
+    <check_ecpt>KFS_CheckEcpt</check_ecpt>
+    <create>KFS_Create</create>
+    <destroy>KFS_Destroy</destroy>
+    <input_data>KFS_InputData</input_data>
+    <set_callback>KFS_SetCallBack</set_callback>
+    <set_config>KFS_SetConfig</set_config>
+    <get_config>KFS_GetConfig</get_config>
+  </analyze_15>
+</AnalyzeCfg>

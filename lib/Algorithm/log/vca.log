@@ -1,0 +1,33 @@
+2025-07-25 18:23:45  <ERROR>|	<..\src\CommonAnalyzer.cpp>	<73>	<CommonAnalyzer::Initialize>,load plugin error, analyze type:0
+2025-07-25 18:23:45  <ERROR>|	<..\src\AnalyzerInterface.cpp>	<91>	<HIA_CreateHandle>,CommonAnalyzer::Initialize error:0x7000009
+2025-07-25 18:23:46  <INFO>|	<..\src\FaceAnalyzeInterface.cpp>	<73>	<AnalyzeInitDFR>,AnalyzeInit successful
+2025-07-25 18:23:46  <DEBUG>|	<..\src\VcaLibManager.cpp>	<160>	<VcaLibManager::Initialize>,MAX_LIB_INSTANCE_COUNT 1
+
+2025-07-25 18:23:46  <INFO>|	<..\src\DplFaceLib.cpp>	<282>	<DplFaceLib::LoadDetModel>,modelPath:model_fr/DetectFR_v5.0.0_v0_CPU_X86_FP32_gen20200610.bin
+2025-07-25 18:23:46  <INFO>|	<..\src\DplFaceLib.cpp>	<333>	<DplFaceLib::LoadDetModel>,mode size:1797424
+2025-07-25 18:23:46  <DEBUG>|	<..\src\DplFaceLib.cpp>	<334>	<DplFaceLib::LoadDetModel>,2222
+2025-07-25 18:23:46  <INFO>|	<..\src\DplFaceLib.cpp>	<88>	<AllocMemTab>,pMemTab[i].size:6509440
+2025-07-25 18:23:46  <INFO>|	<..\src\DplFaceLib.cpp>	<88>	<AllocMemTab>,pMemTab[i].size:884864
+2025-07-25 18:23:46  <INFO>|	<..\src\DplFaceLib.cpp>	<347>	<DplFaceLib::LoadDetModel>,not nullptr
+
+2025-07-25 18:23:47  <ERROR>|	<..\src\DplFaceLib.cpp>	<354>	<DplFaceLib::LoadDetModel>,HIKFR_Detect_InitHandle, error:0x8200100b
+
+2025-07-25 18:23:47  <DEBUG>|	<..\src\DplFaceLib.cpp>	<814>	<DplFaceLib::ReleaseModel>,enter DplFaceLib::ReleaseModel
+2025-07-25 18:23:47  <INFO>|	<..\src\DplFaceLib.cpp>	<853>	<DplFaceLib::ReleaseModel>,DplFaceLib::ReleaseModel finish
+2025-07-25 18:23:47  <ERROR>|	<..\src\DplFaceLib.cpp>	<210>	<DplFaceLib::LoadModel>,LoadDetModel fail, 0x24
+2025-07-25 18:23:47  <ERROR>|	<..\src\FaceAnalyzeInterface.cpp>	<177>	<AnalyzeCreateDFR>,pVcaLibManager->Initialize = 0x24
+
+2025-07-25 18:23:47  <ERROR>|	<..\src\CommonAnalyzer.cpp>	<96>	<CommonAnalyzer::Initialize>,failed to create, analyze type:0,nRet:24
+2025-07-25 18:23:47  <ERROR>|	<..\src\AnalyzerInterface.cpp>	<91>	<HIA_CreateHandle>,CommonAnalyzer::Initialize error:0x24
+2025-07-25 18:23:47  <INFO>|	<..\src\FaceAnalyzeInterface.cpp>	<73>	<AnalyzeInitDFR>,AnalyzeInit successful
+2025-07-25 18:23:47  <DEBUG>|	<..\src\VcaLibManager.cpp>	<160>	<VcaLibManager::Initialize>,MAX_LIB_INSTANCE_COUNT 1
+
+2025-07-25 18:23:47  <INFO>|	<..\src\DplFaceLib.cpp>	<282>	<DplFaceLib::LoadDetModel>,modelPath:model_fr/DetectFR_v5.0.0_v0_CPU_X86_FP32_gen20200610.bin
+2025-07-25 18:23:47  <INFO>|	<..\src\DplFaceLib.cpp>	<333>	<DplFaceLib::LoadDetModel>,mode size:1797424
+2025-07-25 18:23:47  <DEBUG>|	<..\src\DplFaceLib.cpp>	<334>	<DplFaceLib::LoadDetModel>,2222
+2025-07-25 18:23:47  <INFO>|	<..\src\DplFaceLib.cpp>	<88>	<AllocMemTab>,pMemTab[i].size:6509440
+2025-07-25 18:23:47  <INFO>|	<..\src\DplFaceLib.cpp>	<88>	<AllocMemTab>,pMemTab[i].size:884864
+2025-07-25 18:23:47  <INFO>|	<..\src\DplFaceLib.cpp>	<347>	<DplFaceLib::LoadDetModel>,not nullptr
+
+2025-07-25 18:24:25  <ERROR>|	<..\src\CommonAnalyzer.cpp>	<73>	<CommonAnalyzer::Initialize>,load plugin error, analyze type:0
+2025-07-25 18:24:25  <ERROR>|	<..\src\AnalyzerInterface.cpp>	<91>	<HIA_CreateHandle>,CommonAnalyzer::Initialize error:0x7000009

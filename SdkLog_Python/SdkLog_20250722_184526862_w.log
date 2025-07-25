@@ -1,0 +1,419 @@
+LogParam, UseCfgFile[0], LogMod=NoCover(AutoDel=FALSE), LogIndex[1], LogLevel[3], ZipFine[1], MaxLogFileReserved[50], LogCallBack[0x0], LogCallbackLevel[0]
+Zlib: m_fnZlibVersion[1.3.1], m_szCurZlibVersion[1.3.1], m_szCurZlibPath[]
+OpenSSL: m_fnSSLeayVersion[0x0], m_fnOpenSSLVersion[0x0] Unload
+CoreBase: MemInfo, UseMemPool[1]
+CoreBase: ThreadInfo, ENUM_COREBASE_THREADPOOL_DEFAULT, dwMaxCount[128]
+CoreBase: ThreadInfo, ENUM_COREBASE_THREADPOOL_MSGCB, dwMaxCount[10]
+CoreBase: ThreadInfo, ENUM_COREBASE_THREADPOOL_SERVERLINK, dwMaxCount[10]
+CoreBase: ThreadInfo, ENUM_COREBASE_THREADPOOL_TIMERPROXY, dwMaxCount[64]
+CoreBase: ThreadInfo, ENUM_COREBASE_THREADPOOL_ASYNCIO, dwMaxCount[64]
+CoreBase: AbilityInfo, dwMaxMqttConnection[40960]
+[2025-07-22 18:45:26.862][INF] The HCUSBSDK Version is 2.6.0.3 build20241219
+[2025-07-22 18:45:26.862][INF] ------------------------------------------------USB_GetDeviceCount in------------------------------------------------
+[2025-07-22 18:45:26.862][INF] CUsbDeviceManager::DynamicLibLoad 1 szSetPath[]
+[2025-07-22 18:45:26.863][INF] DynamicLoadBase::LoadDSo, HPR_LoadDSo succ, LoadPath[F:\WorkFiles\Projects\hiakang\project\lib\libusb-1.0.dll]
+[2025-07-22 18:45:26.864][INF] ---------------------------------------------------Libusb1---------------------------------------------------
+[2025-07-22 18:45:26.874][DBG] Internal log {libusb: warning [enumerate_hcd_root_hub] could not infer VID/PID of HCD root hub from 'ROOT\NXUSBH\0000'
+}
+[2025-07-22 18:45:26.877][DBG] Internal log {libusb: warning [winusb_get_device_list] could not retrieve port number for device 'NXUSBS\DEVICES\0000': [13] 数据无效。
+}
+[2025-07-22 18:45:26.878][INF] CUsbDriverLibusb::GetDevices(), Vid[0x2bdf] Pid[0x02af] Bus[1] Addr[38] DevD[294] DevClasss[0xef] InterfaceClass[0x0e] EndpointIn[0x85] EndpointOut[0x1]
+[2025-07-22 18:45:26.878][INF] CUsbDriverLibusb::GetDevices(), Vid[0x0489] Pid[0xe0e2] Bus[1] Addr[4] DevD[260] DevClasss[0xef] InterfaceClass[0xe0] EndpointIn[0x81] EndpointOut[0x2]
+[2025-07-22 18:45:26.878][INF] CUsbDriverLibusb::GetDevices(), Vid[0x04e8] Pid[0xa051] Bus[1] Addr[13] DevD[269] DevClasss[0x00] InterfaceClass[0x01] EndpointIn[0x81] EndpointOut[0x1]
+[2025-07-22 18:45:26.878][INF] CUsbDriverLibusb::GetDevices(), Vid[0x0b05] Pid[0x19af] Bus[1] Addr[5] DevD[261] DevClasss[0x00] InterfaceClass[0x03] EndpointIn[0x82] EndpointOut[0x0]
+[2025-07-22 18:45:26.878][INF] CUsbDriverLibusb::GetDevices(), Vid[0x05e3] Pid[0x0608] Bus[1] Addr[2] DevD[258] DevClasss[0x09] InterfaceClass[0x09] EndpointIn[0x81] EndpointOut[0x0]
+[2025-07-22 18:45:26.878][INF] CUsbDriverLibusb::GetDevices(), Vid[0x1ea7] Pid[0x0064] Bus[1] Addr[7] DevD[263] DevClasss[0x00] InterfaceClass[0x03] EndpointIn[0x81] EndpointOut[0x0]
+[2025-07-22 18:45:26.878][INF] CUsbDriverLibusb::GetDevices(), Vid[0x174c] Pid[0x2074] Bus[1] Addr[3] DevD[259] DevClasss[0x09] InterfaceClass[0x09] EndpointIn[0x81] EndpointOut[0x0]
+[2025-07-22 18:45:26.878][ERR] CUsbDriverLibusb::GetDevices() [7]-failed to open device descriptor:LIBUSB_ERROR_NOT_FOUND
+[2025-07-22 18:45:26.878][INF] CUsbDriverLibusb::GetDevices(), Vid[0x0c45] Pid[0xfefe] Bus[1] Addr[6] DevD[262] DevClasss[0x00] InterfaceClass[0x03] EndpointIn[0x81] EndpointOut[0x5]
+[2025-07-22 18:45:26.878][INF] CUsbDriverLibusb::GetDevices(), Vid[0x174c] Pid[0x3074] Bus[1] Addr[1] DevD[257] DevClasss[0x09] InterfaceClass[0x09] EndpointIn[0x81] EndpointOut[0x0]
+[2025-07-22 18:45:26.878][ERR] CUsbDriverLibusb::GetDevices() [10]-failed to open device descriptor:LIBUSB_ERROR_NOT_FOUND
+[2025-07-22 18:45:26.878][INF] ---------------------------------------------------Libusb2---------------------------------------------------
+[2025-07-22 18:45:26.878][INF] ---------------------------------------------------DirectShow---------------------------------------------------
+[2025-07-22 18:45:26.884][INF] CUsbDriverDirectShow::EnumVideoDevs, dwVid[0x2BDF] dwPid[0x02AF] pDev[0x292629a0] wDeviceID[23440] szDevicePath[\\?\usb#vid_2bdf&pid_02af&mi_00#7&211fa5b9&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\global]
+[2025-07-22 18:45:26.915][INF] CUsbDriverDirectShow::EnumDevices, dwVid[0x2BDF] dwPid[0x02AF] pDev[0x292629a0] pDevAudioHandle[0x29262850]
+[2025-07-22 18:45:26.915][INF] ---------------------------------------------------DirectShow---------------------------------------------------
+[2025-07-22 18:45:26.915][INF] ---------------------------------------------------ACS---------------------------------------------------
+[2025-07-22 18:45:26.915][INF] CUsbDeviceFilter::FilterAcsWithID, iResultCount[0]
+[2025-07-22 18:45:26.915][INF] CUsbDeviceBuilder::FilerAndCreateAcsDevices, Acs deivce num[0]
+[2025-07-22 18:45:26.915][INF] ---------------------------------------------------ACS---------------------------------------------------
+[2025-07-22 18:45:26.915][INF] ---------------------------------------------------ACS Uvc---------------------------------------------------
+[2025-07-22 18:45:26.915][INF] CUsbDeviceFilter::FilterAcsUVCWithID, iResultCount[0]
+[2025-07-22 18:45:26.915][INF] CUsbDeviceBuilder::FilerAndCreateAcsUvcDevices, Acs Uvc deivce num[0]
+[2025-07-22 18:45:26.915][INF] ---------------------------------------------------ACS Uvc---------------------------------------------------
+[2025-07-22 18:45:26.915][INF] ---------------------------------------------------Transmission Bulk---------------------------------------------------
+[2025-07-22 18:45:26.915][INF] CUsbDeviceFilter::FilterTransmissionHIDWithID, iResultCount[0]
+[2025-07-22 18:45:26.915][INF] CUsbDeviceBuilder::FilerAndCreateTransmissionBulkDevices, Transmission bulk deivce num[0]
+[2025-07-22 18:45:26.915][INF] ---------------------------------------------------Transmission Bulk---------------------------------------------------
+[2025-07-22 18:45:26.915][INF] ---------------------------------------------------Transmission Uvc---------------------------------------------------
+[2025-07-22 18:45:26.915][INF] CUsbDeviceFilter::FilterTransmissionWithID, iResultCount[0]
+[2025-07-22 18:45:26.915][INF] CUsbDeviceBuilder::FilerAndCreateTransmissionUvcDevices, Transmission bulk deivce num[0]
+[2025-07-22 18:45:26.915][INF] ---------------------------------------------------Transmission Uvc---------------------------------------------------
+[2025-07-22 18:45:26.915][INF] ---------------------------------------------------Thermal---------------------------------------------------
+[2025-07-22 18:45:26.915][INF] CUsbDeviceFilter::FilterThermalWithID, iResultCount[0]
+[2025-07-22 18:45:26.915][INF] CUsbDeviceBuilder::FilerAndCreateThermalDevices, Thermal deivce num[0]
+[2025-07-22 18:45:26.915][INF] ---------------------------------------------------Thermal---------------------------------------------------
+[2025-07-22 18:45:26.915][INF] ---------------------------------------------------Camera---------------------------------------------------
+[2025-07-22 18:45:26.915][INF] CUsbDeviceFilter::FilterCameraWithID, USB_CAMERA_UVC_TYPE dwVid[0x2BDF] dwPid[0x02AF]
+[2025-07-22 18:45:26.915][INF] CUsbDeviceFilter::FilterCameraWithID, iResultCount[1]
+[2025-07-22 18:45:26.915][INF] ----------------------------------------USB_CAMERA_UVC_TYPE[4]----------------------------------------
+[2025-07-22 18:45:26.915][INF] CUsbProtocolUVCBase::SetProtocolVersion, m_dwVersion[2] m_byHeadLen[0]
+[2025-07-22 18:45:26.915][INF] CUsbDeviceBuilder::CreateSpecificDevicesHelper, AddDevice  vid[0x2BDF] pid[0x02AF] DeviceType[7] szSerialNumber[CE07F84C_P0E0501_SN0001] szDeviceName[4K USB Camera] wDeviceID[23440]
+[2025-07-22 18:45:26.915][INF] CUsbDeviceBuilder::FilerAndCreateCameraDevices, Camera deivce num[1]
+[2025-07-22 18:45:26.915][INF] ---------------------------------------------------Camera---------------------------------------------------
+[2025-07-22 18:45:26.915][INF] ------------------------------------------------Devices List------------------------------------------------
+[2025-07-22 18:45:26.915][INF] Index[1] VID[0x2BDF] PID[0x02AF] SerialNumber[CE07F84C_P0E0501_SN0001] DeviceName[4K USB Camera] ColorType[2] HaveAudio[1] DeviceType[7] DriverType[2] MaxPackage[512]
+[2025-07-22 18:45:26.915][INF] ------------------------------------------------Devices List------------------------------------------------
+[2025-07-22 18:45:26.915][INF] ------------------------------------------------USB_GetDeviceCount out------------------------------------------------
+[2025-07-22 18:45:26.915][INF] ------------------------------------------------USB_EnumDevices in------------------------------------------------
+[2025-07-22 18:45:26.915][INF] ------------------------------------------------Devices List------------------------------------------------
+[2025-07-22 18:45:26.915][INF] Index[1] VID[0x2BDF] PID[0x02AF] SerialNumber[CE07F84C_P0E0501_SN0001] DeviceName[4K USB Camera] ColorType[2] HaveAudio[1] DeviceType[7] DriverType[2]
+[2025-07-22 18:45:26.915][INF] ------------------------------------------------Devices List------------------------------------------------
+[2025-07-22 18:45:26.915][INF] ------------------------------------------------USB_EnumDevices out------------------------------------------------
+[2025-07-22 18:45:26.915][INF] ------------------------------------------------USB_Login in------------------------------------------------
+[2025-07-22 18:45:26.915][INF] byLoginMode[0] dwDevIndex[1] dwFd[0] dwVID[0x2bdf] dwPID[0x02af] dwTimeout[5000] szSerialNumber[CE07F84C_P0E0501_SN0001]
+[2025-07-22 18:45:26.942][INF] CUsbDriverDirectShow::InitVideoFilter, m_pVideoFilter[0x292d1808]
+[2025-07-22 18:45:26.981][INF] CUsbProtocolUVCBase::SetProtocolVersion, m_dwVersion[2] m_byHeadLen[0]
+[2025-07-22 18:45:26.981][INF] CUsbCommandLogin::Excute, iUserID[23440]
+[2025-07-22 18:45:26.981][INF] ------------------------------------------------USB_Login out------------------------------------------------
+[2025-07-22 18:45:26.981][INF] ------------------------------------------------[23440]USB_GetDeviceConfig in[3023]------------------------------------------------
+[2025-07-22 18:45:26.981][INF] ------------------------------------------------[23440]USB_GetDeviceConfig out[3023]------------------------------------------------
+[2025-07-22 18:45:26.981][INF] ------------------------------------------------[23440]USB_GetDeviceConfig in[3049]------------------------------------------------
+[2025-07-22 18:45:26.983][INF] ------------------------------------------------[23440]USB_GetDeviceConfig out[3049]------------------------------------------------
+[2025-07-22 18:45:26.983][INF] ------------------------------------------------[23440]USB_GetDeviceConfig in[3041]------------------------------------------------
+[2025-07-22 18:45:26.984][INF] ------------------------------------------------[23440]USB_GetDeviceConfig out[3041]------------------------------------------------
+[2025-07-22 18:45:26.984][INF] ------------------------------------------------[23440]USB_GetDeviceConfig in[3003]------------------------------------------------
+[2025-07-22 18:45:26.984][INF] ------------------------------------------------[23440]USB_GetDeviceConfig out[3003]------------------------------------------------
+[2025-07-22 18:45:26.984][INF] ------------------------------------------------[23440]USB_SetDeviceConfig in[3004]------------------------------------------------
+[2025-07-22 18:45:26.984][INF]  CUsbCommandConfig<USB_SET_VIDEO_PARAM>, dwVideoFormat[101] dwFramerate[30] dwWidth[3840] dwHeight[2160]
+[2025-07-22 18:45:26.984][INF] ------------------------------------------------[23440]USB_SetDeviceConfig out[3004]------------------------------------------------
+[2025-07-22 18:45:26.984][INF] ------------------------------------------------[23440]USB_SetDeviceConfig in[3007]------------------------------------------------
+[2025-07-22 18:45:26.984][INF] ------------------------------------------------[23440]USB_SetDeviceConfig out[3007]------------------------------------------------
+[2025-07-22 18:45:26.984][INF] ------------------------------------------------[23440]USB_SetDeviceConfig in[3024]------------------------------------------------
+[2025-07-22 18:45:26.984][INF] ------------------------------------------------[23440]USB_SetDeviceConfig out[3024]------------------------------------------------
+[2025-07-22 18:45:26.986][INF] ------------------------------------------------[23440]USB_SetDeviceConfig in[3050]------------------------------------------------
+[2025-07-22 18:45:26.991][INF] ------------------------------------------------[23440]USB_SetDeviceConfig out[3050]------------------------------------------------
+[2025-07-22 18:45:26.991][INF] ------------------------------------------------[23440]USB_GetDeviceConfig in[3023]------------------------------------------------
+[2025-07-22 18:45:27.009][INF] ------------------------------------------------[23440]USB_GetDeviceConfig out[3023]------------------------------------------------
+[2025-07-22 18:45:27.009][INF] ------------------------------------------------[23440]USB_GetDeviceConfig in[3049]------------------------------------------------
+[2025-07-22 18:45:27.011][INF] ------------------------------------------------[23440]USB_GetDeviceConfig out[3049]------------------------------------------------
+[2025-07-22 18:45:27.011][INF] ------------------------------------------------[23440]USB_GetDeviceConfig in[3041]------------------------------------------------
+[2025-07-22 18:45:27.012][INF] ------------------------------------------------[23440]USB_GetDeviceConfig out[3041]------------------------------------------------
+[2025-07-22 18:45:27.012][INF] ------------------------------------------------[23440]USB_GetDeviceConfig in[3003]------------------------------------------------
+[2025-07-22 18:45:27.012][INF] ------------------------------------------------[23440]USB_GetDeviceConfig out[3003]------------------------------------------------
+[2025-07-22 18:45:27.012][INF] ------------------------------------------------[23440]USB_SetDeviceConfig in[3014]------------------------------------------------
+[2025-07-22 18:45:27.015][INF] ------------------------------------------------[23440]USB_SetDeviceConfig out[3014]------------------------------------------------
+[2025-07-22 18:45:27.069][INF] ------------------------------------------------USB_StartPreview in------------------------------------------------
+[2025-07-22 18:45:27.069][INF] USB_StartPreview(),lUserID[23440], hWindow[0x1014D2], dwChannel[0], dwStreamType[202], bUseAudio[0]
+[2025-07-22 18:45:27.069][DBG] USBStream::Init , dwVideoStreamType[101], dwWidth[3840], dwHeight[2160], dwFrameRate[30]
+[2025-07-22 18:45:27.069][DBG] StreamObserver::InitSource, HPR_Thread_Create, success
+[2025-07-22 18:45:27.070][INF] CUsbDeviceManager::DynamicLibLoad 1 szSetPath[]
+[2025-07-22 18:45:27.078][INF] DynamicLoadBase::LoadDSo, HPR_LoadDSo succ, LoadPath[F:\WorkFiles\Projects\hiakang\project\lib\FormatConversion\FormatConversion.dll]
+[2025-07-22 18:45:27.078][INF] FCLoadLib, FormatConversion Version is[v4.3.1.3]
+[2025-07-22 18:45:27.079][ERR] StreamConvert::Init FC_SetVideoEncParamEx Failed
+[2025-07-22 18:45:27.080][INF] CUsbDeviceManager::DynamicLibLoad 1 szSetPath[]
+[2025-07-22 18:45:27.081][INF] DynamicLoadBase::LoadDSo, HPR_LoadDSo succ, LoadPath[F:\WorkFiles\Projects\hiakang\project\lib\SystemTransform.dll]
+[2025-07-22 18:45:27.081][INF] SystemConvertLoadLib, SystemTransform Version is[v2.5.5.8]
+[2025-07-22 18:45:27.081][INF] StreamTransform::Init SYSTRANS_Create succ[0x800d94e0]
+[2025-07-22 18:45:27.081][INF] USBStream::Register, iChannel[0] SUCC
+[2025-07-22 18:45:27.081][DBG] CUsbDeviceUVC::Register , iChannel[0], hWindow[0x1014D2], dwStreamType[202], bUseAudio[0]
+[2025-07-22 18:45:27.082][INF] CUsbDriverDirectShow::AddFilterToGraph AddFilterToGraph SUCC
+[2025-07-22 18:45:27.091][INF] ConnectFilters SUCC
+[2025-07-22 18:45:27.091][INF] ConnectFilters SUCC
+[2025-07-22 18:45:27.091][INF] CUsbDriverDirectShow::BuildGraph SUCC
+[2025-07-22 18:45:27.106][DBG] CUsbDeviceUVC::StartStream, Driver InitGetStream Succ!
+[2025-07-22 18:45:27.106][INF] CUsbCommandPreview::StartPreview Device[0x2A650080]-Channel[0] StartStream SUCC
+[2025-07-22 18:45:27.106][INF] ------------------------------------------------USB_StartPreview out------------------------------------------------
+[2025-07-22 18:45:27.336][ERR] DynamicLoadBase::LoadDSo, HPR_LoadDSo Failed, LoadPath[F:\WorkFiles\Projects\hiakang\project\lib\libusb-1.0.dlltrl.dll], syserror[126]
+[2025-07-22 18:45:27.336][ERR] DynamicLoadBase::LoadLib, HPR_INVALID_HANDLE == m_hLibHandle
+[2025-07-22 18:45:27.336][ERR] CUsbDeviceManager::DynamicLibLoad 1 Load Lib [F:\WorkFiles\Projects\hiakang\project\lib\libusb-1.0.dlltrl.dll] Load Failed
+[2025-07-22 18:45:27.338][INF] DynamicLoadBase::LoadDSo, HPR_LoadDSo succ, LoadPath[F:\WorkFiles\Projects\hiakang\project\lib\PlayCtrl\PlayCtrl.dll]
+[2025-07-22 18:45:27.338][INF] PlayM4_LoadPlayCtrlLib, PlayCtrl Version is[v7.4.1.30]
+[2025-07-22 18:45:27.436][ERR] StreamConversion::ConvertInputData, FCInputSourceData FC_VIDEO_RAWDATA Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.436][ERR] FC_InputSourceData Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.470][ERR] StreamConversion::ConvertInputData, FCInputSourceData FC_VIDEO_RAWDATA Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.470][ERR] FC_InputSourceData Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.509][ERR] StreamConversion::ConvertInputData, FCInputSourceData FC_VIDEO_RAWDATA Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.509][ERR] FC_InputSourceData Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.532][ERR] StreamConversion::ConvertInputData, FCInputSourceData FC_VIDEO_RAWDATA Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.532][ERR] FC_InputSourceData Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.571][ERR] StreamConversion::ConvertInputData, FCInputSourceData FC_VIDEO_RAWDATA Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.571][ERR] FC_InputSourceData Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.605][ERR] StreamConversion::ConvertInputData, FCInputSourceData FC_VIDEO_RAWDATA Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.605][ERR] FC_InputSourceData Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.633][ERR] StreamConversion::ConvertInputData, FCInputSourceData FC_VIDEO_RAWDATA Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.633][ERR] FC_InputSourceData Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.671][ERR] StreamConversion::ConvertInputData, FCInputSourceData FC_VIDEO_RAWDATA Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.671][ERR] FC_InputSourceData Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.710][ERR] StreamConversion::ConvertInputData, FCInputSourceData FC_VIDEO_RAWDATA Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.710][ERR] FC_InputSourceData Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.732][ERR] StreamConversion::ConvertInputData, FCInputSourceData FC_VIDEO_RAWDATA Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.732][ERR] FC_InputSourceData Failed, StreamType[101], iRet[0x80000002]
+[2025-07-22 18:45:27.747][INF] StreamPreview::Preview, PlayM4_GetPort, succ, m_lPlayPort[0]
+[2025-07-22 18:45:29.042][INF] ------------------------------------------------USB_StopChannel in------------------------------------------------
+[2025-07-22 18:45:29.042][INF] USB_StopChannel, lUserID[23440] lHandle[0]
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.042][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.159][INF] StreamPreview::StopPreview, PlayM4_FreePort, succ, m_lPlayPort[0]
+[2025-07-22 18:45:29.160][ERR] StreamObserver::ConvertProcess, Exit
+[2025-07-22 18:45:29.163][INF] StreamTransform::FiInit SYSTRANS_Release succ[0x800d94e0]
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.163][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][ERR] StreamPreview::FCStreamCallBack Invalid params
+[2025-07-22 18:45:29.164][INF] CUsbDeviceUVC::StopStream m_bStreamRuning[1]
+[2025-07-22 18:45:29.164][INF] CUsbDriverDirectShow::StopGetStream, Enter
+[2025-07-22 18:45:29.179][INF] CUsbCommandStopChannel::Excute Device[0x2A650080]-Channel[0] StopStream SUCC
+[2025-07-22 18:45:29.179][INF] ------------------------------------------------USB_StopChannel out------------------------------------------------
+[2025-07-22 18:45:29.179][INF] ------------------------------------------------USB_Logout in[23440]------------------------------------------------
+[2025-07-22 18:45:29.179][INF] CUsbDeviceUVC::Close, vid[0x2BDF] pid[0x02AF] m_bStreamRuning[0]
+[2025-07-22 18:45:29.179][INF] CUsbDeviceVideoBase::CloseUpgrade, in
+[2025-07-22 18:45:29.182][INF] ------------------------------------------------USB_Logout out------------------------------------------------
+[2025-07-22 18:45:29.182][INF] ------------------------------------------------USB_Cleanup------------------------------------------------
+[2025-07-22 18:45:29.182][INF] CUsbDeviceUVC::Close, vid[0x2BDF] pid[0x02AF] m_bStreamRuning[0]
+[2025-07-22 18:45:29.182][INF] CUsbDeviceVideoBase::CloseUpgrade, in
+[2025-07-22 18:45:29.182][INF] CUsbDeviceBuilder::Unload(), safe_delete kLibusb
+[2025-07-22 18:45:29.183][INF] CUsbDeviceBuilder::Unload(), safe_delete kLibuvc
+[2025-07-22 18:45:29.183][INF] CUsbDeviceBuilder::Unload(), safe_delete kDirectShow
+[2025-07-22 18:45:29.183][INF] CUsbDriverDirectShow::Finit, HPR_Thread_Wait(m_hProcessThread) in
+[2025-07-22 18:45:29.193][INF] CUsbDriverDirectShow::DoProcess Exit
+[2025-07-22 18:45:29.193][INF] CUsbDriverDirectShow::Finit, HPR_Thread_Wait(m_hProcessThread) out
+[2025-07-22 18:45:29.193][INF] CUsbDeviceBuilder::Unload(), safe_delete kAudioDirectShow
+[2025-07-22 18:45:29.193][INF] CUsbDeviceBuilder::Unload(), safe_delete kVideoDirectShow
+[2025-07-22 18:45:29.193][INF] CUsbDeviceBuilder::Unload(), safe_delete kHCuvc
+[2025-07-22 18:45:29.194][DBG] ~DynamicLoadBase::UnloadLib SUCC
+[2025-07-22 18:45:29.194][DBG] ~DynamicLoadBase::UnloadLib SUCC
+[2025-07-22 18:45:29.194][DBG] ~DynamicLoadBase::UnloadLib SUCC
+[2025-07-22 18:45:29.195][DBG] ~DynamicLoadBase::UnloadLib SUCC
+[2025-07-22 18:45:29.195][DBG] ~DynamicLoadBase::UnloadLib SUCC
+[2025-07-22 18:45:29.208][DBG] CCoreGlobalCtrlBase::TimerThread, Last Log Print

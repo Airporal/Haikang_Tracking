@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Decode version="1.0.0" type="config">
+    <analyze_0> <!-- FR -->
+      <width>0</width>
+      <height>0</height>
+	  <skip>0</skip>
+    </analyze_0>
+	<analyze_1><!-- FD -->
+        <width>640</width>
+        <height>480</height>
+		<skip>0</skip>
+		<fixed>0</fixed>
+    </analyze_1>
+	<analyze_3>
+      <width>500</width>
+      <height>500</height>
+	    <skip>1</skip>
+  </analyze_3>
+    <analyze_4>
+        <width>960</width>
+        <height>540</height>
+        <skip>1</skip>
+    </analyze_4>   
+  <analyze_5>
+      <width>640</width>
+      <height>360</height>
+	  <skip>1</skip>
+   </analyze_5>
+</Decode>

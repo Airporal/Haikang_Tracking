@@ -1,0 +1,98 @@
+LogParam, UseCfgFile[0], LogMod=NoCover(AutoDel=FALSE), LogIndex[1], LogLevel[3], ZipFine[1], MaxLogFileReserved[50], LogCallBack[0x0], LogCallbackLevel[0]
+Zlib: m_fnZlibVersion[1.3.1], m_szCurZlibVersion[1.3.1], m_szCurZlibPath[]
+OpenSSL: m_fnSSLeayVersion[0x0], m_fnOpenSSLVersion[0x0] Unload
+CoreBase: MemInfo, UseMemPool[1]
+CoreBase: ThreadInfo, ENUM_COREBASE_THREADPOOL_DEFAULT, dwMaxCount[128]
+CoreBase: ThreadInfo, ENUM_COREBASE_THREADPOOL_MSGCB, dwMaxCount[10]
+CoreBase: ThreadInfo, ENUM_COREBASE_THREADPOOL_SERVERLINK, dwMaxCount[10]
+CoreBase: ThreadInfo, ENUM_COREBASE_THREADPOOL_TIMERPROXY, dwMaxCount[64]
+CoreBase: ThreadInfo, ENUM_COREBASE_THREADPOOL_ASYNCIO, dwMaxCount[64]
+CoreBase: AbilityInfo, dwMaxMqttConnection[40960]
+[2025-07-22 18:44:27.281][INF] The HCUSBSDK Version is 2.6.0.3 build20241219
+[2025-07-22 18:44:27.281][INF] ------------------------------------------------USB_GetDeviceCount in------------------------------------------------
+[2025-07-22 18:44:27.281][INF] CUsbDeviceManager::DynamicLibLoad 1 szSetPath[]
+[2025-07-22 18:44:27.282][INF] DynamicLoadBase::LoadDSo, HPR_LoadDSo succ, LoadPath[F:\WorkFiles\Projects\hiakang\project\lib\libusb-1.0.dll]
+[2025-07-22 18:44:27.284][INF] ---------------------------------------------------Libusb1---------------------------------------------------
+[2025-07-22 18:44:27.292][DBG] Internal log {libusb: warning [enumerate_hcd_root_hub] could not infer VID/PID of HCD root hub from 'ROOT\NXUSBH\0000'
+}
+[2025-07-22 18:44:27.296][DBG] Internal log {libusb: warning [winusb_get_device_list] could not retrieve port number for device 'NXUSBS\DEVICES\0000': [13] 数据无效。
+}
+[2025-07-22 18:44:27.297][INF] CUsbDriverLibusb::GetDevices(), Vid[0x2bdf] Pid[0x02af] Bus[1] Addr[38] DevD[294] DevClasss[0xef] InterfaceClass[0x0e] EndpointIn[0x85] EndpointOut[0x1]
+[2025-07-22 18:44:27.297][INF] CUsbDriverLibusb::GetDevices(), Vid[0x0489] Pid[0xe0e2] Bus[1] Addr[4] DevD[260] DevClasss[0xef] InterfaceClass[0xe0] EndpointIn[0x81] EndpointOut[0x2]
+[2025-07-22 18:44:27.297][INF] CUsbDriverLibusb::GetDevices(), Vid[0x04e8] Pid[0xa051] Bus[1] Addr[13] DevD[269] DevClasss[0x00] InterfaceClass[0x01] EndpointIn[0x81] EndpointOut[0x1]
+[2025-07-22 18:44:27.297][INF] CUsbDriverLibusb::GetDevices(), Vid[0x0b05] Pid[0x19af] Bus[1] Addr[5] DevD[261] DevClasss[0x00] InterfaceClass[0x03] EndpointIn[0x82] EndpointOut[0x0]
+[2025-07-22 18:44:27.297][INF] CUsbDriverLibusb::GetDevices(), Vid[0x05e3] Pid[0x0608] Bus[1] Addr[2] DevD[258] DevClasss[0x09] InterfaceClass[0x09] EndpointIn[0x81] EndpointOut[0x0]
+[2025-07-22 18:44:27.297][INF] CUsbDriverLibusb::GetDevices(), Vid[0x1ea7] Pid[0x0064] Bus[1] Addr[7] DevD[263] DevClasss[0x00] InterfaceClass[0x03] EndpointIn[0x81] EndpointOut[0x0]
+[2025-07-22 18:44:27.297][INF] CUsbDriverLibusb::GetDevices(), Vid[0x174c] Pid[0x2074] Bus[1] Addr[3] DevD[259] DevClasss[0x09] InterfaceClass[0x09] EndpointIn[0x81] EndpointOut[0x0]
+[2025-07-22 18:44:27.297][ERR] CUsbDriverLibusb::GetDevices() [7]-failed to open device descriptor:LIBUSB_ERROR_NOT_FOUND
+[2025-07-22 18:44:27.297][INF] CUsbDriverLibusb::GetDevices(), Vid[0x0c45] Pid[0xfefe] Bus[1] Addr[6] DevD[262] DevClasss[0x00] InterfaceClass[0x03] EndpointIn[0x81] EndpointOut[0x5]
+[2025-07-22 18:44:27.297][INF] CUsbDriverLibusb::GetDevices(), Vid[0x174c] Pid[0x3074] Bus[1] Addr[1] DevD[257] DevClasss[0x09] InterfaceClass[0x09] EndpointIn[0x81] EndpointOut[0x0]
+[2025-07-22 18:44:27.297][ERR] CUsbDriverLibusb::GetDevices() [10]-failed to open device descriptor:LIBUSB_ERROR_NOT_FOUND
+[2025-07-22 18:44:27.297][INF] ---------------------------------------------------Libusb2---------------------------------------------------
+[2025-07-22 18:44:27.297][INF] ---------------------------------------------------DirectShow---------------------------------------------------
+[2025-07-22 18:44:27.301][INF] CUsbDriverDirectShow::EnumVideoDevs, dwVid[0x2BDF] dwPid[0x02AF] pDev[0xcaeefa30] wDeviceID[23440] szDevicePath[\\?\usb#vid_2bdf&pid_02af&mi_00#7&211fa5b9&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\global]
+[2025-07-22 18:44:27.334][INF] CUsbDriverDirectShow::EnumDevices, dwVid[0x2BDF] dwPid[0x02AF] pDev[0xcaeefa30] pDevAudioHandle[0xcaeef5d0]
+[2025-07-22 18:44:27.334][INF] ---------------------------------------------------DirectShow---------------------------------------------------
+[2025-07-22 18:44:27.334][INF] ---------------------------------------------------ACS---------------------------------------------------
+[2025-07-22 18:44:27.334][INF] CUsbDeviceFilter::FilterAcsWithID, iResultCount[0]
+[2025-07-22 18:44:27.334][INF] CUsbDeviceBuilder::FilerAndCreateAcsDevices, Acs deivce num[0]
+[2025-07-22 18:44:27.334][INF] ---------------------------------------------------ACS---------------------------------------------------
+[2025-07-22 18:44:27.334][INF] ---------------------------------------------------ACS Uvc---------------------------------------------------
+[2025-07-22 18:44:27.334][INF] CUsbDeviceFilter::FilterAcsUVCWithID, iResultCount[0]
+[2025-07-22 18:44:27.334][INF] CUsbDeviceBuilder::FilerAndCreateAcsUvcDevices, Acs Uvc deivce num[0]
+[2025-07-22 18:44:27.334][INF] ---------------------------------------------------ACS Uvc---------------------------------------------------
+[2025-07-22 18:44:27.334][INF] ---------------------------------------------------Transmission Bulk---------------------------------------------------
+[2025-07-22 18:44:27.334][INF] CUsbDeviceFilter::FilterTransmissionHIDWithID, iResultCount[0]
+[2025-07-22 18:44:27.334][INF] CUsbDeviceBuilder::FilerAndCreateTransmissionBulkDevices, Transmission bulk deivce num[0]
+[2025-07-22 18:44:27.334][INF] ---------------------------------------------------Transmission Bulk---------------------------------------------------
+[2025-07-22 18:44:27.334][INF] ---------------------------------------------------Transmission Uvc---------------------------------------------------
+[2025-07-22 18:44:27.334][INF] CUsbDeviceFilter::FilterTransmissionWithID, iResultCount[0]
+[2025-07-22 18:44:27.334][INF] CUsbDeviceBuilder::FilerAndCreateTransmissionUvcDevices, Transmission bulk deivce num[0]
+[2025-07-22 18:44:27.334][INF] ---------------------------------------------------Transmission Uvc---------------------------------------------------
+[2025-07-22 18:44:27.334][INF] ---------------------------------------------------Thermal---------------------------------------------------
+[2025-07-22 18:44:27.334][INF] CUsbDeviceFilter::FilterThermalWithID, iResultCount[0]
+[2025-07-22 18:44:27.334][INF] CUsbDeviceBuilder::FilerAndCreateThermalDevices, Thermal deivce num[0]
+[2025-07-22 18:44:27.334][INF] ---------------------------------------------------Thermal---------------------------------------------------
+[2025-07-22 18:44:27.334][INF] ---------------------------------------------------Camera---------------------------------------------------
+[2025-07-22 18:44:27.334][INF] CUsbDeviceFilter::FilterCameraWithID, USB_CAMERA_UVC_TYPE dwVid[0x2BDF] dwPid[0x02AF]
+[2025-07-22 18:44:27.334][INF] CUsbDeviceFilter::FilterCameraWithID, iResultCount[1]
+[2025-07-22 18:44:27.334][INF] ----------------------------------------USB_CAMERA_UVC_TYPE[4]----------------------------------------
+[2025-07-22 18:44:27.335][INF] CUsbProtocolUVCBase::SetProtocolVersion, m_dwVersion[2] m_byHeadLen[0]
+[2025-07-22 18:44:27.335][INF] CUsbDeviceBuilder::CreateSpecificDevicesHelper, AddDevice  vid[0x2BDF] pid[0x02AF] DeviceType[7] szSerialNumber[CE07F84C_P0E0501_SN0001] szDeviceName[4K USB Camera] wDeviceID[23440]
+[2025-07-22 18:44:27.335][INF] CUsbDeviceBuilder::FilerAndCreateCameraDevices, Camera deivce num[1]
+[2025-07-22 18:44:27.335][INF] ---------------------------------------------------Camera---------------------------------------------------
+[2025-07-22 18:44:27.335][INF] ------------------------------------------------Devices List------------------------------------------------
+[2025-07-22 18:44:27.335][INF] Index[1] VID[0x2BDF] PID[0x02AF] SerialNumber[CE07F84C_P0E0501_SN0001] DeviceName[4K USB Camera] ColorType[2] HaveAudio[1] DeviceType[7] DriverType[2] MaxPackage[512]
+[2025-07-22 18:44:27.335][INF] ------------------------------------------------Devices List------------------------------------------------
+[2025-07-22 18:44:27.335][INF] ------------------------------------------------USB_GetDeviceCount out------------------------------------------------
+[2025-07-22 18:44:27.335][INF] ------------------------------------------------USB_EnumDevices in------------------------------------------------
+[2025-07-22 18:44:27.335][INF] ------------------------------------------------Devices List------------------------------------------------
+[2025-07-22 18:44:27.335][INF] Index[1] VID[0x2BDF] PID[0x02AF] SerialNumber[CE07F84C_P0E0501_SN0001] DeviceName[4K USB Camera] ColorType[2] HaveAudio[1] DeviceType[7] DriverType[2]
+[2025-07-22 18:44:27.335][INF] ------------------------------------------------Devices List------------------------------------------------
+[2025-07-22 18:44:27.335][INF] ------------------------------------------------USB_EnumDevices out------------------------------------------------
+[2025-07-22 18:44:27.335][INF] ------------------------------------------------USB_Login in------------------------------------------------
+[2025-07-22 18:44:27.335][INF] byLoginMode[0] dwDevIndex[1] dwFd[0] dwVID[0x2bdf] dwPID[0x02af] dwTimeout[5000] szSerialNumber[CE07F84C_P0E0501_SN0001]
+[2025-07-22 18:44:27.363][INF] CUsbDriverDirectShow::InitVideoFilter, m_pVideoFilter[0xc8a3ba88]
+[2025-07-22 18:44:27.398][INF] CUsbProtocolUVCBase::SetProtocolVersion, m_dwVersion[2] m_byHeadLen[0]
+[2025-07-22 18:44:27.398][INF] CUsbCommandLogin::Excute, iUserID[23440]
+[2025-07-22 18:44:27.398][INF] ------------------------------------------------USB_Login out------------------------------------------------
+[2025-07-22 18:44:27.399][INF] ------------------------------------------------[23440]USB_GetDeviceConfig in[3023]------------------------------------------------
+[2025-07-22 18:44:27.399][INF] ------------------------------------------------[23440]USB_GetDeviceConfig out[3023]------------------------------------------------
+[2025-07-22 18:44:27.399][INF] ------------------------------------------------[23440]USB_GetDeviceConfig in[3049]------------------------------------------------
+[2025-07-22 18:44:27.402][INF] ------------------------------------------------[23440]USB_GetDeviceConfig out[3049]------------------------------------------------
+[2025-07-22 18:44:27.402][INF] ------------------------------------------------[23440]USB_GetDeviceConfig in[3041]------------------------------------------------
+[2025-07-22 18:44:27.402][INF] ------------------------------------------------[23440]USB_GetDeviceConfig out[3041]------------------------------------------------
+[2025-07-22 18:44:27.402][INF] ------------------------------------------------[23440]USB_GetDeviceConfig in[3003]------------------------------------------------
+[2025-07-22 18:44:27.402][INF] ------------------------------------------------[23440]USB_GetDeviceConfig out[3003]------------------------------------------------
+[2025-07-22 18:44:27.402][INF] ------------------------------------------------[23440]USB_SetDeviceConfig in[3004]------------------------------------------------
+[2025-07-22 18:44:27.402][INF]  CUsbCommandConfig<USB_SET_VIDEO_PARAM>, dwVideoFormat[101] dwFramerate[30] dwWidth[3840] dwHeight[2160]
+[2025-07-22 18:44:27.402][INF] ------------------------------------------------[23440]USB_SetDeviceConfig out[3004]------------------------------------------------
+[2025-07-22 18:44:27.402][INF] ------------------------------------------------[23440]USB_SetDeviceConfig in[3007]------------------------------------------------
+[2025-07-22 18:44:27.402][INF] ------------------------------------------------[23440]USB_SetDeviceConfig out[3007]------------------------------------------------
+[2025-07-22 18:44:27.402][INF] ------------------------------------------------[23440]USB_SetDeviceConfig in[3024]------------------------------------------------
+[2025-07-22 18:44:27.404][INF] ------------------------------------------------[23440]USB_SetDeviceConfig out[3024]------------------------------------------------
+[2025-07-22 18:44:27.404][INF] ------------------------------------------------[23440]USB_SetDeviceConfig in[3050]------------------------------------------------
+[2025-07-22 18:44:27.412][INF] ------------------------------------------------[23440]USB_SetDeviceConfig out[3050]------------------------------------------------
+[2025-07-22 18:44:27.412][INF] ------------------------------------------------[23440]USB_GetDeviceConfig in[3023]------------------------------------------------
+[2025-07-22 18:44:27.412][INF] ------------------------------------------------[23440]USB_GetDeviceConfig out[3023]------------------------------------------------
+[2025-07-22 18:44:27.412][INF] ------------------------------------------------[23440]USB_GetDeviceConfig in[3049]------------------------------------------------
