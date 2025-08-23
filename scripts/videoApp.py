@@ -5,11 +5,12 @@ import cv2
 import time
 
 class VideoApp:
-    def __init__(self, use_camera=True, frame_provider=None,track_handler=None,exit_handler=None):
+    def __init__(self, use_camera=True, frame_provider=None,track_handler=None,exit_handler=None,auto_handle=None):
         self.frame = None
         self.fps_out = 0
         self.center = (0,0)
         self.number = 0
+        self.auto_flag = False
 
         self.root = tk.Tk()
 
@@ -17,6 +18,7 @@ class VideoApp:
         # self.root.resizable(0, 0)
         self.track_handler = track_handler
         self.exit_handler = exit_handler
+        self.auto_handle = auto_handle
 
         # 居中窗口
         screen_w = self.root.winfo_screenwidth()
@@ -45,6 +47,9 @@ class VideoApp:
         self.btn_quit.pack(side=tk.LEFT, padx=0.6)
 
         self.btn_track = ttk.Button(btn_frame, text="跟随", command=self._track_handle)
+        self.btn_track.pack(side=tk.LEFT, padx=0.6)
+        
+        self.btn_track = ttk.Button(btn_frame, text="自动", command=self._auto_handle)
         self.btn_track.pack(side=tk.LEFT, padx=0.6)
 
         # 自定义数据显示
@@ -77,11 +82,25 @@ class VideoApp:
 
     def _track_handle(self):
         if self.track_handler:
-            self.track_handler()
+            if self.auto_flag is False:
+                # 如果启动自动模式，则此按钮无效
+                self.track_handler()
         else:
             print("ui初始化失败！")
             self.quit_all()
 
+    def _auto_handle(self):
+        # 自动跟随，当arcuo码数量小于4个时，移动相机
+        if self.auto_handle:
+            if self.auto_flag is False:
+                self.auto_flag = True
+                self.auto_handle()
+            else:
+                self.auto_flag = False
+        else:
+            print("自动跟踪初始化失败！")
+            self.quit_all()
+    
     def quit_all(self):
 
         self.root.quit()

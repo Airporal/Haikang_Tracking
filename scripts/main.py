@@ -49,6 +49,7 @@ class netPlay(devClass):
                 frame_provider=self.frame_provider,
                 track_handler=self.track_handler,
                 exit_handler=self.exit_handler,
+                auto_handle=self.auto_handle
             )
         # 用于确保系统头只处理一次
         @CFUNCTYPE(None, c_long, DWORD, POINTER(c_ubyte), DWORD, c_void_p)
@@ -157,20 +158,19 @@ class netPlay(devClass):
         try:
             if not self.use_UI:
                 cv2.namedWindow(f"Hikvision", cv2.WINDOW_NORMAL)
-
             while self.running:
-
                 frame = get_frame_jpeg_cv(self.Playctrldll,self.PlayCtrl_Port)
                 if frame is None:
                     print("⚠️ 抓图失败，跳过帧")
                     continue
                 if not self.begin_cv_flag: # 第一帧显示需要初始化
-                    self.detector.init_detector_from_frame(frame,manual=True,save_bbox=True)
+                    init_marker_dict = self.detector.init_detector_from_frame(frame,manual=True,save_bbox=True)
                     self.begin_cv_flag = True
                     continue
                 self.new_frame_time = time.time()
                 # if self.n % 3 ==0:
-                frame, box, center, qr_number = self.detector.detect(frame)
+                # 最新的一帧，目标框坐标，目标框中心点，四个aruco码映射后的坐标
+                frame, box, center, mapped_points = self.detector.detect(frame)
                 # 记录最新的max_history个中心点
                 self.history_centers.append((int(center[0]),int(center[1])))
                 if len(self.history_centers)> self.max_history:
@@ -188,7 +188,7 @@ class netPlay(devClass):
                     self.frame = frame
                     self.center = (int(center[0]),int(center[1]))
                     self.fps = self.freq
-                    self.number = qr_number
+                    self.number = len(mapped_points)
                 else:
                     cv2.imshow("Hikvision", frame)
                 # print(self.freq,wast_time)
@@ -263,7 +263,13 @@ class netPlay(devClass):
         self.NetLogout()  # 登出设备
         self.NetCleanup()  # 释放资源
         print("✅ 程序退出")
-
+        
+    def auto_handle(self):
+        if self.number < 4:
+            self.Start_track()
+        else:
+            self.Stop_track()
+        
 if __name__ == '__main__':
     dev = netPlay(use_UI= args.use_UI,model=args.model,frame_mode= frame_mode_set[args.frame_mode])  # 初始化参数 + 加载dll
     dev.init_sdk()  # 初始化sdk
