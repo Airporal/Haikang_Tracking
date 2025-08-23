@@ -208,7 +208,7 @@ class netPlay(devClass):
         dy = box_center[1]-cy
         command = None
         if abs(dx)>self.threshold or abs(dy)>self.threshold:
-            self.dynamic_sleep = calculate_dynamic_sleep(dx,dy,200,0.1,0.2)
+            self.dynamic_sleep = calculate_dynamic_sleep(dx,dy,200,0.1,0.8)
             if dx<-self.threshold and dy<-self.threshold:
                 command = UP_LEFT
             elif dx>self.threshold and dy<-self.threshold:
@@ -229,6 +229,7 @@ class netPlay(devClass):
             # print(f"{box_center[0]}, {cx}，{dx},{box_center[1]},{cy},{dy},{command},{self.dynamic_sleep}")
             if self.Netsdk.NET_DVR_PTZControl(self.lRealPlayHandle, command, 0):  # 开始
                 time.sleep(self.dynamic_sleep)
+                # time.sleep(0.09)
                 self.Netsdk.NET_DVR_PTZControl(self.lRealPlayHandle, command, 1)  # 停止
             else:
                 self.get_net_error_msg()

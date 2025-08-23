@@ -68,3 +68,7 @@ python main.py
 ```
 
 + core、lib分别存放了NETSDK、USBSDK的库文件。
+
+## 代办
+TODO: 修改sleep时间使得云台转速更快
+TODO: 开放参数接口
