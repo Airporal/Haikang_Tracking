@@ -20,7 +20,7 @@ import cv2
 import numpy as np
 import time
 
-from scripts.utils import calculate_dynamic_sleep
+from utils import calculate_dynamic_sleep
 
 # TODO添加到类中
 
