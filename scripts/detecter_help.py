@@ -3,7 +3,10 @@ import time
 import functools
 import numpy as np
 import matplotlib.pyplot as plt
-
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from config import CONFIG_DIR
 
 def projection_on_plane_with_origin(P, A, B, C, D, origin=(1, 1, 1)):
     """
@@ -74,9 +77,11 @@ def show_2D(projected_points,win_name='Projected Points on Plane'):
     plt.show(block=True)
 
 def get_2D_plane_pos(points,use_ABCD=True,draw_flag=False):
+
+    fit_plane_data = os.path.join(CONFIG_DIR,'fit_plane_data.npz')
     if use_ABCD==True:
         type='dst'
-        fit_plane_data = np.load('fit_plane_data.npz')
+        fit_plane_data = np.load(fit_plane_data)
         A = fit_plane_data['A']
         B = fit_plane_data['B']
         C = fit_plane_data['C']
@@ -84,7 +89,7 @@ def get_2D_plane_pos(points,use_ABCD=True,draw_flag=False):
     elif use_ABCD==False:
         type='src'
         A, B, C, D = fit_plane_least_squares(points)
-        np.savez('fit_plane_data.npz', A=A, B=B, C=C, D=D)
+        np.savez(fit_plane_data, A=A, B=B, C=C, D=D)
     # 将点投影到平面
     origin = np.array([0, 0, 0])
     projected_points = projection_on_plane_with_origin(points, A, B, C, D, origin)
@@ -127,6 +132,9 @@ def show_3D(points):
 
 def save_intrinsic(camera_matrix,dist_coeffs):
     np.savez_compressed("camera_calibration.npz",camera_matrix=camera_matrix,dist_coeffs=dist_coeffs)
+    print("Save intrinsic successfully!")
+    print(f"camera_matrix{camera_matrix.shape}:\n{camera_matrix}")
+    print(f"dist_coeffs{dist_coeffs.shape}:\n{dist_coeffs}")
     
 def residuals(params, src_pts, tgt_pts):
     """ 计算残差 """
@@ -156,3 +164,18 @@ def stopwatch(func):
         print(f"函数 {func.__name__} 耗时 {end - start:.6f} 秒")
         return result
     return wrapper
+
+if __name__ == '__main__':
+    #  更新相机内参
+    camera_calibration = os.path.join(CONFIG_DIR,'camera_calibration.npz')
+    camera_matrix = np.load(camera_calibration)
+    print(f"camera_matrix{camera_matrix['camera_matrix'].shape}:\n{camera_matrix['camera_matrix']}")
+    print(f"dist_coeffs{camera_matrix['dist_coeffs'].shape}:\n{camera_matrix['dist_coeffs']}")
+    new_intrinsics = np.array([
+        [1.228164273e+03,0,9.043849702e+02],
+        [0,1.229066895e+03,5.665061177e+02],
+        [0,0,1]
+    ])
+    # k1,k2,p1,p2,k3
+    new_dist_coeffs = np.array([-0.134992249, 0.091937196, 0.000667906,-0.000938182, 0.393600290]).reshape(1,5)
+    save_intrinsic(new_intrinsics,new_dist_coeffs)

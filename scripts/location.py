@@ -18,6 +18,11 @@ class locator:
         self.aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_5X5_50)
         self.parameters = cv2.aruco.DetectorParameters()
         self.detector = cv2.aruco.ArucoDetector(self.aruco_dict, self.parameters)
+        self.extrinsic = None
+        
+        self.update_exterinsic_threshold = 3  # 用于记录更新外参的aruco码数量阈值
+        
+        self.now_positions = None
     
     # -------------------- aruco检测模块 -------------------- #
     # @stopwatch
@@ -25,7 +30,7 @@ class locator:
         """
             耗时90ms
             检测aruco码并返回aruco码的3D坐标和姿态估计
-            
+            确保markers的顺序与初始标定一致
         """
         # 如果传入地址，则读取, 如果是图片则直接赋值
         if isinstance(image_file, str):
@@ -57,7 +62,7 @@ class locator:
                 marker_list.append(tvecs[i].reshape(3) - anchor)
                 marker_dict[idx[0]] = marker_list[-1]
             marker_list = np.array(marker_list)
-            self._show_debug(marker_dict)
+            # self._show_debug(marker_dict)
             if update==True:
                 self.markers = np.array(marker_list) # 用于更新参数
             if self.draw_flag:
@@ -65,12 +70,18 @@ class locator:
                 self._show_markers(show_img, corners_sorted, ids_sorted, rvecs, tvecs)
                 # show_3D(self.markers)
             return marker_list, marker_dict
+        else:
+            return None, None
         
-    def get_pos_2D(self,points, mode=3):
+    def get_pos_2D(self,points, mode=3,save_position=True):
         """
-            用于直接获取映射后的2D坐标点
+            用于直接获取映射后的2D坐标点,
+            不移动时，设置save_position=True，会记录当前获取的位置，用于后续更新外参
         """
+        if points == None:
+            return None
         affine_points = get_2D_plane_pos(points, use_ABCD=True) # 4x2
+        mapped_points = None
         if mode == 2:
             # 2D
             mapped_points = self.apply_affine_transform_2D(affine_points) # 4x2
@@ -79,12 +90,28 @@ class locator:
             mapped_points = self.apply_affine_transform(affine_points) # 4x2
         else:
             print("mode error")
+        if save_position:
+            # 遮住aruco码不保存位置，只保存完整的位置
+            if len(mapped_points)==4:
+                self.now_positions = mapped_points
+            # print("now_positions:",self.now_positions)
         return mapped_points
     # -------------------- 外参校准模块 -------------------- #
     # @stopwatch
+    
+    def update_extrinsic_from_lstsq(self, img_num=None, real_positions=None, ids=None):
+        """
+        采用最小二乘法计算外参矩阵
+        可以使用 >= update_extrinsic_threshold 个点更新
+        """
+        if real_positions is None:
+            real_positions = self._get_real_positions(img_num)  # 全部 4 个真实位置
+
     def update_extrinsic_from_lstsq(self, img_num=None,real_positions=None):
         """
             耗时 0.001189
+            detect_markers 之后调用，更新外参矩阵，detect的aruco码数量大于等于update_exterinsic_threshold才更新
+            同时，detect_markers检测结果确保与初始标定顺序一致
             采用AX=B计算投影平面到管板世界坐标系的二维位置的转移矩阵
             使用此矩阵X 可以将plane_points_2D 转换到世界坐标系下
         """
@@ -92,11 +119,24 @@ class locator:
             real_positions = self._get_real_positions(img_num) # 设置真实位置
         else:
             real_positions = real_positions
-        self.markers_2D = get_2D_plane_pos(self.markers,False)
-        A = np.hstack((self.markers_2D, np.ones((self.markers_2D.shape[0], 2)))) # 4x4
-        B = np.hstack((real_positions, np.ones((real_positions.shape[0], 1))))  # 4x3
+        # print(f"real_positions: {real_positions}")
+        
+        # 只保留当前检测到的 marker 对应的真实位置
+        # self.markers 和 ids_sorted 保持一致，这里 ids[i] 与 markers[i] 对应
+        detected_markers_2D = get_2D_plane_pos(self.markers, False)  # N×2
+        # print(f"detected_markers_2D: {detected_markers_2D}")
+        if len(detected_markers_2D) < self.update_exterinsic_threshold:
+            print(f"❌ Not enough markers ({len(detected_markers_2D)}), "
+                  f"need at least {self.update_exterinsic_threshold}")
+            return None
+        # 按照数量截取
+        valid_num = len(detected_markers_2D)
+        A = np.hstack((detected_markers_2D, np.ones((valid_num, 2))))   # N×3 
+        B = np.hstack((real_positions[:valid_num], np.ones((valid_num, 1))))  # N×3
+        
         transformation_matrix, _, _, _ = lstsq(A, B) # transformation_matrix 4x3 包含旋转与平移
         self.extrinsic = np.vstack((transformation_matrix.T,np.array([0,0,0,1]))) # 更新外参矩阵4X4
+        print(f"👍 Update extrinsic with {valid_num} markers Success!")
         return self.extrinsic
     
     # @stopwatch
@@ -128,6 +168,8 @@ class locator:
             [0.0, 0.0, 0.0, 1.0]
         ]) # 4x4
         self.extrinsic = affine_matrix
+        # np.savez(os.path.join(CONFIG_DIR,'extrinsic_matrix.npz'), extrinsic=self.extrinsic)
+        print("👍 Update extrinsic matrix Success!")
         return self.extrinsic
     
     # @stopwatch
@@ -144,6 +186,7 @@ class locator:
         else:
             real_positions = real_positions   
         self.markers_2D = get_2D_plane_pos(self.markers,False)
+        
         ## 计算先验achrs -> holes的映射
         # 构建线性方程组的矩阵
         A = np.zeros((2 * len(self.markers_2D), 6))
@@ -169,6 +212,10 @@ class locator:
             输入：plane_points_2D 4x2
             输出：real_2D_points 4x3
         """
+        if self.extrinsic is None:
+            print("Please update extrinsic matrix first")
+            extrinsic_npz = np.load(os.path.join(CONFIG_DIR,'extrinsic_matrix.npz'))
+            self.extrinsic = extrinsic_npz['extrinsic']
         A = np.hstack((points, np.ones((points.shape[0], 2)))) # 4x4
         detect_points = np.dot(A, self.extrinsic.T) # 4x3 最后一列全为1
         return detect_points[:, :2] # 4x2
@@ -215,7 +262,13 @@ class locator:
             gt_leg_res = prior_holes + 12 * motion_down * motion_dev
             gt_leg_res = gt_leg_res + (img_num - 13) * motion_right * motion_dev
         return gt_leg_res
-
+    
+    def get_now_positions(self):
+        """
+            获取累积的位置变化, 用于重新校准外参
+            机器人Arcuco码缺失->获取当前的位置->移动相机云台->停止移动->获取新的aruco码->根据之前记录的位置跟新外参
+        """
+        return self.now_positions
     # -------------------- 精度分析模块 -------------------- #
     def accuracy_estimate(self, points, image_num, mode = 2):
         """
@@ -319,11 +372,11 @@ if __name__ == '__main__':
         dst_image_file = os.path.join(img_dir, str(dst_img_num) + '.jpg')
         src_3D_points, src_marker_dict = locator.detect_markers(src_image_file, update=True)
         dst_3D_points, dst_marker_dict = locator.detect_markers(dst_image_file, update=False)   
-        # 更新内参
-        extrinsic_lm = locator.update_extrinsic_from_LM(src_img_num) 
-        locator.accuracy_estimate(dst_3D_points, dst_img_num, mode = 3) 
-        extrinsic_2D = locator.update_extrinsic_2D(src_img_num) 
-        locator.accuracy_estimate(dst_3D_points, dst_img_num, mode = 2) 
+        # 更新外参
+        # extrinsic_lm = locator.update_extrinsic_from_LM(src_img_num) 
+        # locator.accuracy_estimate(dst_3D_points, dst_img_num, mode = 3) 
+        # extrinsic_2D = locator.update_extrinsic_2D(src_img_num) 
+        # locator.accuracy_estimate(dst_3D_points, dst_img_num, mode = 2) 
         extrinsic_lstsq = locator.update_extrinsic_from_lstsq(src_img_num) 
         locator.accuracy_estimate(dst_3D_points, dst_img_num, mode = 3)
         
