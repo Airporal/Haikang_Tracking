@@ -5,11 +5,20 @@ import cv2
 import time
 
 class VideoApp:
-    def __init__(self, use_camera=True, frame_provider=None,track_handler=None,exit_handler=None):
+    def __init__(self, use_camera=True, frame_provider=None,track_handler=None,exit_handler=None,auto_handle=None):
         self.frame = None
         self.fps_out = 0
         self.center = (0,0)
         self.number = 0
+        # 状态机
+        self.mode_mechine = "Stop"  # Auto : 当视野受限时自动跟踪，Stop : 停止跟踪，Manual : 手动跟踪目标到中心点
+        self.track_flag = False  # 是否正在跟踪目标
+        self.mapped_points =[
+            [591.2625, 412.5, 1],
+            [591.2625, 712.5, 1],
+            [461.3595, 712.5, 1],
+            [461.3595, 412.5, 1]
+        ]
 
         self.root = tk.Tk()
 
@@ -17,11 +26,12 @@ class VideoApp:
         # self.root.resizable(0, 0)
         self.track_handler = track_handler
         self.exit_handler = exit_handler
+        self.auto_handle = auto_handle
 
         # 居中窗口
         screen_w = self.root.winfo_screenwidth()
         screen_h = self.root.winfo_screenheight()
-        self.w ,self.h = 640, 480
+        self.w ,self.h = 700, 480
         win_w, win_h = self.w+20, self.h+20
         x = (screen_w - win_w) // 2
         y = (screen_h - win_h) // 2
@@ -30,7 +40,7 @@ class VideoApp:
         # self.root.overrideredirect(True)
         self.root.geometry(f"{win_w}x{win_h}+{x}+{y}")
         self.root.resizable(True, True)
-        self.root.minsize(640, 480)
+        self.root.minsize(700, 480)
         self.root.maxsize(1920, 1080)
 
         style = ttk.Style()
@@ -45,6 +55,9 @@ class VideoApp:
         self.btn_quit.pack(side=tk.LEFT, padx=0.6)
 
         self.btn_track = ttk.Button(btn_frame, text="跟随", command=self._track_handle)
+        self.btn_track.pack(side=tk.LEFT, padx=0.6)
+        
+        self.btn_track = ttk.Button(btn_frame, text="自动", command=self._auto_handle)
         self.btn_track.pack(side=tk.LEFT, padx=0.6)
 
         # 自定义数据显示
@@ -62,6 +75,28 @@ class VideoApp:
                            cursor="tcross")
         # self.canvas.pack()
         self.canvas.pack(fill=tk.BOTH, expand=True)
+        
+        
+        self.table_frame = ttk.Frame(self.root)
+        self.table_frame.pack(pady=5)
+
+        self.marker_table = ttk.Treeview(
+            self.table_frame,
+            columns=("id", "x", "y", "z"),
+            show="headings",
+            height=4  # 最多显示4行
+        )
+        self.marker_table.heading("id", text="ID")
+        self.marker_table.heading("x", text="X")
+        self.marker_table.heading("y", text="Y")
+        self.marker_table.heading("z", text="Z")
+
+        self.marker_table.column("id", width=50, anchor="center")
+        self.marker_table.column("x", width=80, anchor="center")
+        self.marker_table.column("y", width=80, anchor="center")
+        self.marker_table.column("z", width=80, anchor="center")
+
+        self.marker_table.pack()
         # 视频来源
         self.use_camera = use_camera
         self.frame_provider = frame_provider
@@ -77,42 +112,67 @@ class VideoApp:
 
     def _track_handle(self):
         if self.track_handler:
-            self.track_handler()
+            if self.mode_mechine != "Auto": # Auto : 当视野受限时自动跟踪，Stop : 停止跟踪，Manual : 手动跟踪目标到中心点
+                # 如果启动自动模式，则此按钮无效
+                if self.mode_mechine == "Stop":
+                    print("开始手动跟踪")
+                    self.mode_mechine = "Manual"
+                else:
+                    print("停止手动跟踪")
+                    self.mode_mechine = "Stop"
+                self.track_handler()
+                    
         else:
             print("ui初始化失败！")
             self.quit_all()
 
+    def _auto_handle(self):
+        # 自动跟随，当arcuo码数量小于4个时，移动相机
+        if self.auto_handle:
+            if self.mode_mechine != "Auto": # Auto : 当视野受限时自动跟踪，Stop : 停止跟踪，Manual : 手动跟踪目标到中心点
+                print("开始自动跟踪")
+                self.mode_mechine = "Auto"
+                self.auto_handle()
+            else:
+                print("停止自动跟踪")
+                self.mode_mechine = "Stop" # 切换到停止跟踪模式
+                self.auto_handle()
+        else:
+            print("自动跟踪初始化失败！")
+            self.quit_all()
+    
     def quit_all(self):
-
         self.root.quit()
         self.root.destroy()
         if self.exit_handler:
             self.exit_handler()
 
     # 外部调用函数传递图像与信息
-    def set_frame(self,frame=None,fps_out=0,center=(0,0),number=0):
+    def set_frame(self,frame=None,fps_out=0,center=(0,0),number=0,track_flag=False,mapped_points=None):
         self.frame = frame
         self.fps_out = fps_out
         self.center = center
         self.number = number
+        self.track_flag = track_flag
+        self.mapped_points = mapped_points
 
     def get_frame(self,frame=None):
         # 1.直接从相机获取
         if self.use_camera:
             ret, frame = self.cap.read()
             if not ret:
-                return None,0,0,0
-            return frame,0,0,0
+                return None,0,0,0,0,np.zeros((4,3))
+            return frame,0,0,0,0,np.zeros((4,3))
         else:
             # 2.使用frame_provider获取
             if self.frame_provider:
                 return self.frame_provider()
             #
             else:
-                return self.frame,self.fps_out,self.center,self.number
+                return self.frame,self.fps_out,self.center,self.number,0,np.zeros((4,3))
 
     def update_frame(self):
-        frame,fps_out,center,number= self.get_frame()
+        frame,fps_out,center,number,track_flag,mapped_points = self.get_frame()
         if frame is not None:
             frame = cv2.resize(frame, (self.w, self.h))
             # 转换图像并显示
@@ -129,13 +189,28 @@ class VideoApp:
             # 更新时间和信息
             now = time.time()
             fps = int(1.0 / (now - self.prev_time + 1e-6))
+            self.track_flag = track_flag
             self.prev_time = now
-            self.data_label.config(text=f"FPSOUT: {fps_out}    |    FPS: {fps}    |    CENTER: {center}    |    QRNumber: {number}")
+            self.data_label.config(text=
+                                   f"FPSOUT: {fps_out}    |    FPS: {fps}    |    CENTER: {center}    |    ArUcoNum: {number}    |    MODE: {self.mode_mechine}    |    Track: {self.track_flag}")
+            self.update_marker_table(mapped_points)
         else:
             self.data_label.config(text="等待图像...")
 
         if self.use_camera:
             self.root.after(10, self.update_frame)
+
+    def update_marker_table(self, marker_positions):
+        """
+        marker_positions: list of (id, x, y, z)，最多4个
+        """
+        # 清空旧数据
+        for row in self.marker_table.get_children():
+            self.marker_table.delete(row)
+
+        # 插入新数据
+        for marker in marker_positions[:4]:  # 最多4个
+            self.marker_table.insert("", "end", values=marker)
 
     def loop(self):
         self.root.mainloop()

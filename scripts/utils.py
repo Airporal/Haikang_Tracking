@@ -10,6 +10,8 @@ from PIL import Image
 import io
 import time
 
+
+
 def system_get_platform_info():
     sys_platform = platform.system().lower().strip()
     python_bit = platform.architecture()[0]

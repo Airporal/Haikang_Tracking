@@ -3,6 +3,7 @@ import json
 import os
 import numpy as np
 from pyzbar import pyzbar
+from location import locator
 
 DETECTOR_SET = {
     "kcf": lambda: cv2.TrackerKCF.create(),
@@ -29,15 +30,31 @@ class NormalDetector:
         self.project_dir = os.path.dirname(current_dir)
         self.bbox_path = os.path.join(self.project_dir, "config", "bbox.json")
         self.target_img_path = os.path.join(self.project_dir, "config", "test2.png")
-        self.qr_decoder = cv2.QRCodeDetector()
+        # 给一个初始的位置用于确定外参
+        self.init_positions = np.array([
+            [0,0],
+            [0,0],
+            [0,0],
+            [0,0],
+        ])
+        self.init_locator()
+        
+    def init_locator(self):
+        """
+            初始化定位器
+        """
+        INTRINSIC = os.path.join(self.project_dir, 'config','camera_calibration.npz')
+        self.Locator_initFlag = False # 当有第一个外参矩阵后标记为True
+        self.mylocator = locator(INTRINSIC)
 
-    def detect_QR_number(self,frame):
-        retval,decoded_info,points,_ = self.qr_decoder.detectAndDecodeMulti(frame)
-
-        if retval:
-            return len(decoded_info)
-        else:
-            return 0
+    def init_extrinsic(self, frame):
+        # 初始化校准外参矩阵，根据初始测量位置计算外参矩阵
+        init_3D_points, init_marker_dict = self.mylocator.detect_markers(image_file = frame, update=True)
+        if init_3D_points is not None:
+            self.mylocator.update_extrinsic_from_lstsq(real_positions=self.init_positions)
+            self.Locator_initFlag = True
+        return init_3D_points, init_marker_dict
+        
     def load_bbox_from_file(self, bbox_path):
         if bbox_path and os.path.exists(bbox_path):
             with open(bbox_path, "r") as f:
@@ -148,7 +165,7 @@ class NormalDetector:
         if frame is None or frame.size == 0:
             print("❌ 提供的初始化帧无效")
             exit()
-        self.init_tracker_on_frame(frame, **kwargs)
+        return self.init_tracker_on_frame(frame, **kwargs)
 
     def selectROI_scaled(self,window_name, img, scale=0.3):
         # Step1: Resize 显示图像
@@ -197,25 +214,38 @@ class NormalDetector:
         self.bbox = bbox
         self.tracker = DETECTOR_SET[self.model]()
         self.tracker.init(frame, bbox)
+        # 初始化校准外参矩阵，根据初始测量位置计算外参矩阵
+        init_3D_points, init_marker_dict = self.init_extrinsic(frame)
 
         if save_bbox:
             self.save_bbox()
             self.save_template(frame, bbox, save_path=self.target_img_path)
 
         print("✅ Tracker 初始化完成")
+        return init_marker_dict
 
-    def detect(self, frame=None, reinit_on_lost=True):
+    def detect(self, frame=None, reinit_on_lost=True, save_position=False,update=False):
+        """
+          不移动时才设置save_position=True,否则会导致坐标偏移
+          更新外参时才设置update=True
+        """
         if frame is None:
             if self.cap:
                 ret, frame = self.cap.read()
                 if not ret:
                     print("❌ 无法读取视频帧")
-                    return None, None,None, 0
+                    return None, None,None, None
             else:
                 print("❌ 未提供帧，且未绑定视频源")
                 return None, None, None,None
-        qr_number = self.detect_QR_number(frame)
+        
         success, box = self.tracker.update(frame)
+        # 默认不更新markers,当需要更新外参时更新
+        try:
+            frame_3D_points, frame_marker_dict = self.mylocator.detect_markers(frame,update=update)
+            mapped_points = self.mylocator.get_pos_2D(frame_3D_points,save_position=save_position)
+        except:
+            mapped_points = None
         if success:
             self.bbox = box
             center = self.get_box_center(box)
@@ -223,7 +253,7 @@ class NormalDetector:
                           (int(box[0] + box[2]), int(box[1] + box[3])),
                           (0, 255, 0), 2)
 
-            return frame, box, center,qr_number
+            return frame, box, center, mapped_points
         else:
             cv2.putText(frame, "Tracking Lost", (50, 80),
                         cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 3)
