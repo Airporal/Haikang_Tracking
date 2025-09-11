@@ -7,8 +7,7 @@ from PlayCtrlSDK import *
 from normal_detector import NormalDetector
 import cv2
 import time
-from utils import get_frame_bmp,get_frame_jpeg_cv,get_frame_jpeg_auto,frame_mode_set
-from scripts.utils import calculate_dynamic_sleep
+from utils import get_frame_bmp,get_frame_jpeg_cv,get_frame_jpeg_auto,frame_mode_set,calculate_dynamic_sleep
 from baseSdk import devClass
 from videoApp import VideoApp
 import argparse
