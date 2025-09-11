@@ -98,15 +98,6 @@ class locator:
         return mapped_points
     # -------------------- 外参校准模块 -------------------- #
     # @stopwatch
-    
-    def update_extrinsic_from_lstsq(self, img_num=None, real_positions=None, ids=None):
-        """
-        采用最小二乘法计算外参矩阵
-        可以使用 >= update_extrinsic_threshold 个点更新
-        """
-        if real_positions is None:
-            real_positions = self._get_real_positions(img_num)  # 全部 4 个真实位置
-
     def update_extrinsic_from_lstsq(self, img_num=None,real_positions=None):
         """
             耗时 0.001189
