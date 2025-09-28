@@ -816,6 +816,7 @@ def debug4():
         drow,dcol = get_drow_dcol(row,col,init_row,init_col)
         print(init_row,init_col,row,col,drow,dcol)
         img_name = "img" + "{:05d}".format(idx) + ".png"
+        print("frame:",img_name)
         frame = cv2.imread(os.path.join(img_dir, img_name))
         marker_list, marker_dict, show_img = detector.detect_markers(frame)
         if marker_list is None:
