@@ -3,21 +3,32 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import cv2
 import time
-
+import os
+import datetime
+CONFIG_DIR = os.path.dirname(__file__)
+PROJECT_DIR = os.path.dirname(CONFIG_DIR)
+IMG_DIR = os.path.join(PROJECT_DIR, "img")
+DATA = datetime.datetime.now().strftime("%Y-%m-%d")
+# 生成保存目录
+save_dir = os.path.join(IMG_DIR, DATA)
+os.makedirs(save_dir, exist_ok=True)
 class VideoApp:
-    def __init__(self, use_camera=True, frame_provider=None,track_handler=None,exit_handler=None,auto_handle=None):
+    def __init__(self, use_camera=True, frame_provider=None,track_handler=None,exit_handler=None,auto_handler=None,
+                 save_handler=None,mark_handler=None,detect_handler=None,auto2_handler=None):
         self.frame = None
         self.fps_out = 0
         self.center = (0,0)
         self.number = 0
         # 状态机
-        self.mode_mechine = "Stop"  # Auto : 当视野受限时自动跟踪，Stop : 停止跟踪，Manual : 手动跟踪目标到中心点
+        self.mode_mechine = "Stop"  # Auto : 当视野受限时自动跟踪，Stop : 停止跟踪，Manual : 手动跟踪目标到中心点 Auto2 :  当偏移中心时自动跟踪，并自动动态停止跟踪
         self.track_flag = False  # 是否正在跟踪目标
+        self.show_mark = True  # 是否可视化标记目标
+        # 0-1-2-3
         self.mapped_points =[
-            [591.2625, 412.5, 1],
-            [591.2625, 712.5, 1],
-            [461.3595, 712.5, 1],
-            [461.3595, 412.5, 1]
+            [591.2625, 412.5],
+            [591.2625, 712.5],
+            [461.3595, 712.5],
+            [461.3595, 412.5]
         ]
 
         self.root = tk.Tk()
@@ -26,19 +37,24 @@ class VideoApp:
         # self.root.resizable(0, 0)
         self.track_handler = track_handler
         self.exit_handler = exit_handler
-        self.auto_handle = auto_handle
-
+        self.auto_handler = auto_handler
+        self.auto2_handler = auto2_handler
+        self.save_handler= save_handler
+        self.mark_handler = mark_handler
+        self.detect_handler = detect_handler
+        
         # 居中窗口
         screen_w = self.root.winfo_screenwidth()
         screen_h = self.root.winfo_screenheight()
         self.w ,self.h = 700, 480
-        win_w, win_h = self.w+20, self.h+20
+        # self.w ,self.h = 1060,1024
+        win_w, win_h = self.w, self.h+20
         x = (screen_w - win_w) // 2
-        y = (screen_h - win_h) // 2
+        y = (screen_h - win_h) // 2 + 1
         self.root.attributes('-alpha', 1)
         self.root.configure(bg='#4B5CC4')
         # self.root.overrideredirect(True)
-        self.root.geometry(f"{win_w}x{win_h}+{x}+{y}")
+        self.root.geometry(f"{win_w}x{win_h + 150}+{x}+{y}")
         self.root.resizable(True, True)
         self.root.minsize(700, 480)
         self.root.maxsize(1920, 1080)
@@ -54,11 +70,23 @@ class VideoApp:
         self.btn_quit = ttk.Button(btn_frame, text="退出", command=self.quit_all)
         self.btn_quit.pack(side=tk.LEFT, padx=0.6)
 
-        self.btn_track = ttk.Button(btn_frame, text="跟随", command=self._track_handle)
+        self.btn_track = ttk.Button(btn_frame, text="跟随", command=self._track_handler)
         self.btn_track.pack(side=tk.LEFT, padx=0.6)
         
-        self.btn_track = ttk.Button(btn_frame, text="自动", command=self._auto_handle)
-        self.btn_track.pack(side=tk.LEFT, padx=0.6)
+        self.btn_auto = ttk.Button(btn_frame, text="自动", command=self._auto_handler)
+        self.btn_auto.pack(side=tk.LEFT, padx=0.6)
+        
+        self.btn_auto2 = ttk.Button(btn_frame, text="动态", command=self._auto2_handler)
+        self.btn_auto2.pack(side=tk.LEFT, padx=0.6)
+        
+        self.btn_save = ttk.Button(btn_frame, text="拍照", command=self._save_handler)
+        self.btn_save.pack(side=tk.LEFT, padx=0.6)
+        
+        self.btn_mark = ttk.Button(btn_frame, text="标记", command=self._mark_handler)
+        self.btn_mark.pack(side=tk.LEFT, padx=0.6)
+        
+        self.btn_detect = ttk.Button(btn_frame, text="识别", command=self._detect_handler)
+        self.btn_detect.pack(side=tk.LEFT, padx=0.6)
 
         # 自定义数据显示
         self.data_label = ttk.Label(self.root, text="等待图像...")
@@ -109,10 +137,44 @@ class VideoApp:
         self.prev_time = time.time()
 
         self.update_frame()
+    
+    def _detect_handler(self):
+        if self.detect_handler:
+            self.detect_handler()
+        else:
+            print("错误：未设置检测回调函数")
+            
+    def _take_photo(self):
+        if self.frame is not None:
+            # 用整数时间戳命名
+            timestamp = int(time.time() * 1000)
+            filename = f"{timestamp}.jpg"
+            img_path = os.path.join(save_dir, filename)
+            success = cv2.imwrite(img_path, self.frame)
+            if success:
+                print(f"拍照成功，保存到 {img_path}, size: {self.frame.shape}")
+            else:
+                print(f"保存失败，请检查路径: {img_path}")
+        else:
+            print("没有图像数据")
+            
+    def _mark_handler(self):
+        # 控制图片是否可视化识别得到的标记信息
+        self.show_mark = not self.show_mark
+        self.mark_handler()
+        if self.show_mark:
+            print("可视化标记已打开")
+        else:
+            print("可视化标记已关闭")
+    
+    def _save_handler(self):
+        if self.save_handler:
+            self.save_handler()
 
-    def _track_handle(self):
+    def _track_handler(self):
         if self.track_handler:
-            if self.mode_mechine != "Auto": # Auto : 当视野受限时自动跟踪，Stop : 停止跟踪，Manual : 手动跟踪目标到中心点
+            # Auto : 当视野受限时自动跟踪，Auto2 : 将目标限制在stop_threshold与threshold之间，Stop : 停止跟踪，Manual : 手动跟踪目标到中心点
+            if self.mode_mechine != "Auto" or self.mode_mechine != "Auto2": 
                 # 如果启动自动模式，则此按钮无效
                 if self.mode_mechine == "Stop":
                     print("开始手动跟踪")
@@ -126,19 +188,34 @@ class VideoApp:
             print("ui初始化失败！")
             self.quit_all()
 
-    def _auto_handle(self):
+    def _auto_handler(self):
         # 自动跟随，当arcuo码数量小于4个时，移动相机
-        if self.auto_handle:
+        if self.auto_handler:
             if self.mode_mechine != "Auto": # Auto : 当视野受限时自动跟踪，Stop : 停止跟踪，Manual : 手动跟踪目标到中心点
                 print("开始自动跟踪")
                 self.mode_mechine = "Auto"
-                self.auto_handle()
+                self.auto_handler()
             else:
                 print("停止自动跟踪")
                 self.mode_mechine = "Stop" # 切换到停止跟踪模式
-                self.auto_handle()
+                self.auto_handler()
         else:
             print("自动跟踪初始化失败！")
+            self.quit_all()
+    
+    def _auto2_handler(self):
+        # 自动跟踪，当目标偏移距离大于threshold时，开始跟踪，当目标偏移距离小于stop_threshold时，停止跟踪
+        if self.auto2_handler:
+            if self.mode_mechine != "Auto2":
+                print("开始自动跟踪模式2")
+                self.mode_mechine = "Auto2"
+                self.auto2_handler()
+            else:
+                print("停止自动跟踪模式2")
+                self.mode_mechine = "Stop"
+                self.auto2_handler()
+        else:
+            print("自动跟踪2初始化失败! ")
             self.quit_all()
     
     def quit_all(self):
@@ -147,7 +224,7 @@ class VideoApp:
         if self.exit_handler:
             self.exit_handler()
 
-    # 外部调用函数传递图像与信息
+    # 外部调用函数传递图像与信息, 用于从文件中读取
     def set_frame(self,frame=None,fps_out=0,center=(0,0),number=0,track_flag=False,mapped_points=None):
         self.frame = frame
         self.fps_out = fps_out
@@ -160,6 +237,7 @@ class VideoApp:
         # 1.直接从相机获取
         if self.use_camera:
             ret, frame = self.cap.read()
+            print(frame.shape)
             if not ret:
                 return None,0,0,0,0,np.zeros((4,3))
             return frame,0,0,0,0,np.zeros((4,3))
@@ -167,13 +245,15 @@ class VideoApp:
             # 2.使用frame_provider获取
             if self.frame_provider:
                 return self.frame_provider()
-            #
+            # 3.从文件读取
             else:
                 return self.frame,self.fps_out,self.center,self.number,0,np.zeros((4,3))
 
     def update_frame(self):
         frame,fps_out,center,number,track_flag,mapped_points = self.get_frame()
         if frame is not None:
+            self.frame = frame.copy()
+
             frame = cv2.resize(frame, (self.w, self.h))
             # 转换图像并显示
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -202,15 +282,17 @@ class VideoApp:
 
     def update_marker_table(self, marker_positions):
         """
-        marker_positions: list of (id, x, y, z)，最多4个
+        marker_positions: list of (id, x, y, z)，最多4个, 可能不包含z的数值，若不包含则z空
         """
         # 清空旧数据
         for row in self.marker_table.get_children():
             self.marker_table.delete(row)
-
-        # 插入新数据
-        for marker in marker_positions[:4]:  # 最多4个
-            self.marker_table.insert("", "end", values=marker)
+        for row in marker_positions:
+            self.marker_table.insert("", "end", values=[int(row[0])] + [f"{x:.4f}" for x in row[1:]])
+        # # 插入新数据
+        # print(marker_positions)
+        # for marker in marker_positions[:4]:  # 最多4个
+        #     self.marker_table.insert("", "end", values=marker)
 
     def loop(self):
         self.root.mainloop()

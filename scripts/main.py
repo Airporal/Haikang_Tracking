@@ -12,10 +12,20 @@ from baseSdk import devClass
 from videoApp import VideoApp
 import argparse
 args = argparse.ArgumentParser()
+import os
+import datetime
+CONFIG_DIR = os.path.dirname(__file__)
+PROJECT_DIR = os.path.dirname(CONFIG_DIR)
+IMG_DIR = os.path.join(PROJECT_DIR, "img")
+DATA = datetime.datetime.now().strftime("%Y-%m-%d")
+# 生成保存目录
+save_dir = os.path.join(IMG_DIR, DATA)
+os.makedirs(save_dir, exist_ok=True)
+
 args.add_argument("--model", type=str, default="boosting", help="模型选择，默认为boosting")
 args.add_argument("--use_UI", type=bool, default=True, help="是否使用UI界面，默认为True")
 args.add_argument("--frame_mode", type=int, default=1, help="取流模式 0: 从bmp取流 1: 从jpeg取流 2:自适应 ")
-args = args.parse_args()
+args = args.parse_args() 
 
 class netPlay(devClass):
     def __init__(self, use_UI = True, use_Playctrl = True, model = "boosting",frame_mode=1):
@@ -25,9 +35,11 @@ class netPlay(devClass):
         self.begin_cv_flag = False
         self.track = False  # 是否跟随目标
         self.auto = False  # 是否自动跟踪
-        self.save_position = True  # 用于记录移动相机后是否完成初始位置的markers标记
+        self.auto2 = False # 是否动态跟踪
+        self.move_position = True  # 用于mannual模式控制移动
         self.please_update_extrinsic = False  # 用于记录是否需要更新外参
         self.update_exterinsic_threshold = 2  # 用于记录更新外参的aruco码数量阈值
+        self.redetect_flag = False  # 用于记录是否需要重新检测
         
         self.app = None  # UI界面
         self.FuncDecCB = None
@@ -37,12 +49,18 @@ class netPlay(devClass):
         self.new_frame_time = 0  # 当前帧时间
         self.n = 0
         self.history_centers = []  # 存储历史中心点坐标
+        self.bias = [] # 保存像素偏差量
         self.max_history = 10  # 最大历史记录数
 
         self.threshold = 20  # 跟随阈值,像素偏差小于此值则不调整
-        self.detector = NormalDetector(model=model, from_video=False)  # 初始化检测器
+        self.start_threshold = 30 # 启动跟踪阈值，像素偏差大于此阈值，则开启跟踪
+        self.stop_threshold = 10 # 停止跟踪阈值，像素偏差小于此阈值，则不再跟踪
+        self.detector = NormalDetector(model=model, from_video=False)  # 初始化检测器，同时初始化相机内参和机器人初始位置
         self.dynamic_sleep = 0.01  # 动态休眠时间
-        self.frame = None
+        self.frame = None         # ui显示的当前帧
+        self.origin_frame = None  # 用于保存图片
+        
+        self.show_mark = True # True: 显示具有标记的图像，False: 显示原始图像
         self.fps = 0
         self.center = (0,0)
         self.number = 0
@@ -60,7 +78,11 @@ class netPlay(devClass):
                 frame_provider=self.frame_provider,
                 track_handler=self.track_handler,
                 exit_handler=self.exit_handler,
-                auto_handle=self.auto_handle
+                auto_handler=self.auto_handler,
+                auto2_handler=self.auto2_handler,
+                save_handler=self.save_handler,
+                mark_handler=self.mark_handler,
+                detect_handler=self.detect_handler
             )
         # 用于确保系统头只处理一次
         @CFUNCTYPE(None, c_long, DWORD, POINTER(c_ubyte), DWORD, c_void_p)
@@ -176,32 +198,50 @@ class netPlay(devClass):
                     print("⚠️ 抓图失败，跳过帧")
                     continue
                 if not self.begin_cv_flag: # 第一帧显示需要初始化
-                    # None 表示没有更新成功
+                    # None 表示没有更新成功，同时初始化外参矩阵
                     init_marker_dict = self.detector.init_detector_from_frame(frame,manual=True,save_bbox=True)
                     self.begin_cv_flag = True
+                    mapped_points = self.detector.mylocator.get_now_positions()
                     continue
                 self.new_frame_time = time.time()
                 # if self.n % 3 ==0:
                 # 最新的一帧，目标框坐标，目标框中心点，四个aruco码映射后的坐标
                 # 当track为Flase时，如果记录要更新外参，则更新外参
+                self.origin_frame = frame.copy()
+                if self.redetect_flag:
+                    # 目标丢失了，需要重新检测目标，此过程只对目标框重新识别
+                    if self.redetect_Not_finised:
+                        if self.please_update_extrinsic:
+                            print("❌ 相机外参变动，可能无法精确跟踪目标！")
+                        self.detector.redetect(frame)
+                        self.redetect_Not_finised = False
+                        print("✅ 重新跟踪目标结束，请复位跟踪按钮")
+                        continue
+                    # 根据模板重新匹配目标
+                    else:
+                        print("✅ 重新跟踪目标结束，请复位跟踪按钮")
                 if self.track is False:
                     # 结束移动后，更新外参后才可以保存新的目标位置
                     if self.please_update_extrinsic:
-                        real_positions = self.detector.mylocator.get_now_positions() # 获取记录的真实位置
+                        real_positions = self.detector.mylocator.get_now_positions() # 获取记录的真实位置，save_position中更新的真实位置
                         # 识别更新markers的相机坐标系位置，但是不保存当前的估算世界位置，因为外参未更新
-                        frame, box, center, mapped_points = self.detector.detect(frame,save_position=False,update=True)
+                        frame, box, center, mapped_points,mark_frame = self.detector.detect(frame,save_position=False,update=True)
                         # 更新外参
                         # print(f"{real_positions,real_positions.shape}")
-                        try:
-                            extrinsic_lm = self.detector.mylocator.update_extrinsic_from_lstsq(real_positions=real_positions) 
-                        except Exception as e:
-                            print(f"更新外参失败：{e}")
-                            # print(f"{real_positions,real_positions.shape}")
-                            continue
-                        self.please_update_extrinsic = False                            
+                        if mapped_points is not None and len(mapped_points)>self.update_exterinsic_threshold:
+                            try:
+                                extrinsic_lm = self.detector.mylocator.update_extrinsic_from_lstsq(real_positions=real_positions) 
+                            except Exception as e:
+                                print(f"更新外参失败：{e}")
+                                # print(f"{real_positions,real_positions.shape}")
+                                continue
+                            self.please_update_extrinsic = False
+                        # 没有aruco码, 无法更新外参，此时持续更新外参
+                        else:
+                            print("❌ 请注意，未识别到aruco码，无法更新外参！！ ")
                     else:
                         # 默认情况下，保存新的识别位置和真值位置，同时当检测到aruco码数量大于阈值时，更新外参
-                        frame, box, center, mapped_points = self.detector.detect(frame,save_position=True,update=True)
+                        frame, box, center, mapped_points,mark_frame  = self.detector.detect(frame,save_position=True,update=True)
                         if mapped_points is not None and len(mapped_points)>self.update_exterinsic_threshold:
                         # if len(mapped_points)>self.update_exterinsic_threshold:
                             try:
@@ -211,40 +251,51 @@ class netPlay(devClass):
                                 print(f"更新外参失败：{e}")
                                 print(f"{real_positions,real_positions.shape}")
                                 continue
+                        else:
+                            print(f"❌ 请注意，未识别到aruco码或aruco码数量小于阈值，无法更新外参！！！ {mapped_points}")
                 else:
                     # 跟踪时，不更新外参，不保存当前的估算世界位置，因为外参未更新
-                    frame, box, center, mapped_points = self.detector.detect(frame,save_position=False,update=False)
-
+                    frame, box, center, mapped_points,mark_frame  = self.detector.detect(frame,save_position=False,update=False)
                 # 记录最新的max_history个中心点
                 self.history_centers.append((int(center[0]),int(center[1])))
                 if len(self.history_centers)> self.max_history:
                     self.history_centers.pop(0)
+                cx = frame.shape[1]//2
+                cy = frame.shape[0]//2
+                dx = int(center[0])-cx
+                dy = int(center[1])-cy
+                self.bias = [dx,dy]
                 wast_time = time.time()-self.new_frame_time
                 self.freq = int(1/(self.new_frame_time-self.prev_frame_time))
                 self.prev_frame_time = self.new_frame_time
-                cv2.putText(frame, f"wast:{wast_time}", (int(box[0]), int(box[1])-10), cv2.FONT_HERSHEY_SIMPLEX, 1.6, (0, 255, 0), 8)
+                cv2.putText(mark_frame, f"bias:{dx}x{dy}", (int(box[0]), int(box[1])-10), cv2.FONT_HERSHEY_SIMPLEX, 1.6, (0, 255, 0), 8)
                 if self.use_UI:
                     # time.sleep(0.03)
                     # with self.lock:
                     self.app.update_frame()
                     self.app.root.update_idletasks()
                     self.app.root.update()
-                    self.frame = frame
+                    # 控制显示画面是否显示标记，用于检测错误
+                    if self.show_mark:
+                        self.frame = mark_frame
+                    else:
+                        self.frame = frame
                     self.center = (int(center[0]),int(center[1]))
                     self.fps = self.freq
                     if mapped_points is not None:
+                        # 显示锚点个数和位置，位置是识别的真实位置，如果相机外参未更新则不一定正确
                         self.number = len(mapped_points)
                         self.mapped_points = mapped_points
                     else:
                          self.number = 0
-                         self.mapped_points =[
-                            []]
+                         self.mapped_points =[[]]
                 else:
                     cv2.imshow("Hikvision", frame)
                 # print(self.freq,wast_time)
                 # if self.number < 4:
-                
                 self.auto_follow()
+                if self.auto2:
+                    self.auto2_checker()
                 if self.track:
                     self.track_target(frame.shape,center)
                 if self.use_UI:
@@ -255,10 +306,14 @@ class netPlay(devClass):
             # self.StopWork()
     #     shape 1080x1920
     def track_target(self,shape,box_center):
-        cx = shape[1]//2
-        cy = shape[0]//2
-        dx = box_center[0]-cx
-        dy = box_center[1]-cy
+        # 按下跟随按钮，自动跟踪到stop_threshold, 然后track变为False, 当大于threshold时重新True
+        # cx = shape[1]//2
+        # cy = shape[0]//2
+        # dx = box_center[0]-cx
+        # dy = box_center[1]-cy
+        # self.bias = [dx,dy]
+        dx = self.bias[0]
+        dy = self.bias[1]
         command = None
         if abs(dx)>self.threshold or abs(dy)>self.threshold:
             self.dynamic_sleep = calculate_dynamic_sleep(dx,dy,200,0.1,0.8)
@@ -288,15 +343,14 @@ class netPlay(devClass):
                 self.get_net_error_msg()
 
     def Start_track(self):
-        # 跟踪则不跟新真实位置,标记需要更新外参
+        # 跟踪则不跟新真实位置,标记需要更新外参， TODO save_position已经不再使用，考虑删除
         self.please_update_extrinsic = True
         self.track = True
         print(f"👌 跟踪按钮被按下{self.track}")
-        self.save_position = False
+        
     def Stop_track(self):
-        # self.please_update_extrinsic = False
         self.track = False
-        self.save_position = True
+        
     def StopWork(self):
         if self.lRealPlayHandle > -1:
             self.Netsdk.NET_DVR_StopRealPlay(self.lRealPlayHandle)
@@ -312,10 +366,14 @@ class netPlay(devClass):
         if self.track:
             self.Stop_track()
         else:
+            # 开启时，默认移动
             self.Start_track()
 
-    def frame_provider(self):
+    def mark_handler(self):
+        # 更该显示的图像
+        self.show_mark = not self.show_mark
 
+    def frame_provider(self):
         return self.frame, self.fps, self.center, self.number,self.track,self.mapped_points
 
     def exit_handler(self):
@@ -325,18 +383,42 @@ class netPlay(devClass):
         self.NetCleanup()  # 释放资源
         print("✅ 程序退出")
     
+    def detect_handler(self):
+        """
+            丢失目标必然无法更新外参，此时如果相机处于持续静止状态，表示外参正确，则重新识别目标，否则需要手动更新外参
+        """
+        if self.redetect_flag is False:
+            self.redetect_flag = True
+            self.redetect_Not_finised = True
+            print("❌ 目标丢失，开始重新识别目标")
+        else:
+            self.redetect_flag = False
+
+    
+    def save_handler(self):
+        if self.origin_frame is not None:
+            # 用整数时间戳命名
+            timestamp = int(time.time() * 1000)
+            filename = f"{timestamp}.jpg"
+            img_path = os.path.join(save_dir, filename)
+            success = cv2.imwrite(img_path, self.origin_frame)
+            if success:
+                print(f"拍照成功，保存到 {img_path}, size: {self.origin_frame.shape}")
+            else:
+                print(f"保存失败，请检查路径: {img_path}")
+        else:
+            print("没有图像数据")
+    
     def auto_follow(self):
         # 当开启自动跟踪时，如果目标数量小于4，则开始跟踪，否则停止跟踪
         if self.auto == True:
             if self.number < 4:
                 self.Start_track()
-                # print(f"开始跟踪{self.track}")
             else:
                 self.Stop_track()
-                # print(f"停止跟踪{self.track}")
-        # print(f"自动跟踪状态：{self.auto,self.track}")
+
                 
-    def auto_handle(self):
+    def auto_handler(self):
         # 开启自动跟踪并不一定改变跟踪状态
         print(f"目标数量：{self.number}")
         if self.auto == False:
@@ -345,8 +427,38 @@ class netPlay(devClass):
         else:
             self.auto = False
             self.Stop_track()
-            print("❤️ 自动跟踪已关闭 {self.track,self.auto}")
+            print(f"❤️ 自动跟踪已关闭 {self.track,self.auto}")
 
+    def auto2_checker(self):
+        """
+            当低于停止阈值时，切换状态
+        """
+        dx = self.bias[0]
+        dy = self.bias[1]
+        if abs(dx)<self.stop_threshold and abs(dy)<self.stop_threshold:
+            # 小于停止阈值，停止跟踪
+            self.Stop_track()
+        if abs(dx)>self.start_threshold or abs(dy)>self.start_threshold:
+            # 超过启动阈值，开始跟踪，直到小于停止阈值
+            if self.track is False:
+                self.Start_track()
+            self.threshold = self.stop_threshold
+            print(f"设置阈值: {self.threshold}")
+            
+    def auto2_handler(self):
+        # 开启动态跟踪模式
+        print(f"偏离量：{self.bias}")
+        if self.auto2 == False:
+            self.auto2 = True
+            self.Start_track()
+            print("❤️ 自动2跟踪已开启")
+        else:
+            self.auto2 = False
+            if self.track:
+                self.Stop_track()
+            self.threshold = 20
+            print(f"❤️ 自动跟踪2已关闭 {self.track,self.auto2,self.threshold }")
+            
         
 if __name__ == '__main__':
     dev = netPlay(use_UI= args.use_UI,model=args.model,frame_mode= frame_mode_set[args.frame_mode])  # 初始化参数 + 加载dll
