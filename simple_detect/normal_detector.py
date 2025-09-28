@@ -4,6 +4,27 @@ from scipy.linalg import lstsq
 from detecter_help import *
 import os
 import pandas as pd
+from scipy.optimize import least_squares
+
+import numpy as np
+import cv2
+def residuals(params, src_pts, tgt_pts):
+    """ 计算残差 """
+    # 构造4x4仿射矩阵
+    affine = np.array([
+        [params[0], params[1], params[2], params[3]],
+        [params[4], params[5], params[6], params[7]],
+        [params[8], params[9], params[10], params[11]],
+        [0.0, 0.0, 0.0, 1.0]
+    ])
+    # 转换源点为齐次坐标并转置为(4, N)
+    src_hom = np.hstack((src_pts, np.ones((src_pts.shape[0], 1)))).T
+    # 应用仿射变换
+    pred_hom = affine @ src_hom  # 结果形状为(4, N)
+    # 转换为Nx3的矩阵
+    pred_pts = pred_hom[:3, :].T
+    # 计算残差并展平
+    return (pred_pts - tgt_pts).ravel()
 class NormalDetector:
     def __init__(self, row, col):
         """
@@ -234,6 +255,34 @@ class NormalDetector:
         print(f"👍 Update extrinsic with {points_num}: {idx} markers Success!")
         return transformation_matrix
     
+    def update_extrinsic_from_LM(self,markers=None, real_positions=None):
+        """
+            耗时 0.002506
+            markers: 4x4 3D坐标 idx,x,y,z
+            real_positions: 4x3 真实位置 idx,x,y
+            丢失的位置用-1表示
+        """
+             
+        mask = (markers[:, 0] != -1) & (real_positions[:, 0] != -1) # m>2
+        coords_A = markers[mask, 1:]  # mx3
+        idx = markers[mask, 0].astype(int) # mx1, aruco标记的id
+        coords_B = real_positions[mask, 1:]  # mx2
+        coords_B = np.hstack((coords_B, np.ones((coords_B.shape[0], 1))))  # 4x3
+        
+        points_num = len(coords_A)
+        if points_num < self.update_exterinsic_threshold:
+            print(f"❌ Not enough markers ({points_num}), "
+                  f"need at least {self.update_exterinsic_threshold}")
+            return None
+        initial_params = np.array([1,0,0,0, 0,1,0,0, 0,0,1,0], dtype=np.float64)
+        # 初始参数：单位矩阵，无平移
+        res = least_squares(residuals, initial_params, args=(coords_A,coords_B), method='lm')        # 调用最小二乘优化
+        self.update_inv_extrinsic_from_lstsq(real_positions, idx)
+        self.extrinsic = res.x.reshape(3,4)
+
+        print("👍 Update extrinsic matrix Success!")
+        return self.extrinsic
+    
     def update_inv_extrinsic_from_lstsq(self,real_positions, idx):
         """
         real_positions: Nx3, 每行 [id, X, Y] 世界坐标
@@ -308,6 +357,13 @@ class NormalDetector:
         center_col = 1 + round((center_real_position[0] *2)/43.301)  # x坐标，
         center_row =1+round((center_real_position[1]*2)/25)  # y坐标
         centers = np.array([center_row,center_col])
+        
+        # self.extrinsic *self.center
+        # A = np.hstack([self.center, np.ones((self.center.shape[0], 1))]) # Mx4
+        # # print(f"A: {A}")
+        # mapped = A @ self.extrinsic # M×2
+        
+        
         # 扩展为齐次坐标 (x,y)
         center_pix = np.dot(np.array([center_real_position[0], center_real_position[1], 1]), self.inv_extrinsic)
         # print(f"center_pix: {center_pix}")
@@ -335,8 +391,31 @@ class NormalDetector:
                 self.track = False
         if debug:
             print(f"now_positions: \n{now_positions}")
-            print(f"{self.track,bias,center_pix,center_row,center_col}")
+            print(f"{self.track,bias,center_pix,self.center,center_row,center_col}")
         return self.track,bias,center_pix,centers
+    
+    def apply_affine_lm(self,points,save_position=True):
+
+        if self.extrinsic is None:
+            print("Please update extrinsic matrix first")
+            extrinsic_npz = np.load(os.path.join(CONFIG_DIR,'extrinsic_matrix.npz'))
+            self.extrinsic = extrinsic_npz['extrinsic']
+
+        mapped_points = points[:, :-1] # 第0列为id保持不变 NX3
+        # idx表示非-1的行索引
+        points,idx = self.get_useful(points)
+        idx_r = points[:, 0].astype(int)
+        # print(f"mapped_points: {mapped_points}")
+        points = points[:, 1:] # 去掉id
+        
+        A = np.hstack((points, np.ones((points.shape[0], 1)))) # 4x4
+        print(f"A: {A.shape}")
+        detect_points = np.dot(A, self.extrinsic.T) # 4x3 最后一列全为1
+        # return detect_points[:, :2] # 4x2
+        mapped_points[idx,1:] = detect_points[:, :2] 
+        if save_position:
+            self.now_positions = mapped_points
+        return mapped_points
     
     def apply_affine_transform(self,points,save_position=True):
         """
@@ -350,7 +429,7 @@ class NormalDetector:
         if points is None:
             return None
         # points Nx4
-        
+
         mapped_points = points[:, :-1] # 第0列为id保持不变 NX3
         # idx表示非-1的行索引
         points,idx = self.get_useful(points)
@@ -364,7 +443,7 @@ class NormalDetector:
             self.extrinsic = extrinsic_npz['extrinsic']
         
         A = np.hstack([points, np.ones((points.shape[0], 1))]) # Mx4
-        # print(f"A: {A}")
+        print(f"A: {A}")
         mapped = A @ self.extrinsic # M×2
         mapped_points[idx,1:] = mapped 
         # print(f"mapped_points: {mapped_points}")
@@ -426,12 +505,12 @@ class NormalDetector:
         # 转灰度
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        # CLAHE 自适应直方图均衡
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-        gray = clahe.apply(gray)
+        # # CLAHE 自适应直方图均衡
+        # clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+        # gray = clahe.apply(gray)
 
-        # 双边滤波保持边缘
-        gray = cv2.bilateralFilter(gray, d=5, sigmaColor=75, sigmaSpace=75)
+        # # 双边滤波保持边缘
+        # gray = cv2.bilateralFilter(gray, d=5, sigmaColor=75, sigmaSpace=75)
 
         return gray
     @staticmethod
@@ -527,14 +606,15 @@ def debug2():
         0	61	77   2
         1	63	77   3
         ...
-        41	27	113  43`
+        41	27	113  43
     """
     current_dir = os.path.dirname(__file__)
     parent_dir = os.path.dirname(current_dir)
     img_dir = os.path.join(parent_dir, 'img', "2025-09-26")
     labels = os.path.join(parent_dir, 'config', 'lables2.xlsx')
-    info_path = os.path.join(parent_dir, 'config', 'log2.xlsx')
+    info_path = os.path.join(parent_dir, 'config', 'log44.xlsx')
     df = pd.read_excel(labels)
+    print(df.shape)
     info_dic = {
         'id':[],
         'x':[],
@@ -550,12 +630,13 @@ def debug2():
 
     def data_load(num):
         id = df.loc[num].id
-        col = df.loc[num].col
         row = df.loc[num].row
-        return row, col, id
+        col = df.loc[num].col
+        return int(row), int(col), int(id+2)
     
-    init_row,init_col,idx = data_load(2)
+    init_row,init_col,idx = data_load(0)
     detector = NormalDetector(row=init_row,col=init_col)
+    print(init_row,init_col,idx)
     img_name = "img" + "{:05d}".format(idx) + ".png"
     frame0 = cv2.imread(os.path.join(img_dir, img_name))
     init_list, init_dict, show_img = detector.init_extrinsic(frame0)
@@ -579,11 +660,12 @@ def debug2():
         print("❌ 外参初始化失败")
         return
     
-    for i in range(2,27):
+    for i in range(0,25):
         print(f"================================{i}================================")
         row,col,idx = data_load(i)
-        drow,dcol = get_drow_dcol(row,col)
         
+        drow,dcol = get_drow_dcol(row,col)
+        print(row,col,idx)
         img_name = "img" + "{:05d}".format(idx) + ".png"
         frame = cv2.imread(os.path.join(img_dir, img_name))
         marker_list, marker_dict, show_img = detector.detect_markers(frame)
@@ -591,6 +673,7 @@ def debug2():
             continue
         vaild_number = len(np.where(marker_list[:, 0] != -1)[0])
         now_positions = detector.apply_affine_transform(marker_list, save_position=True)
+        print(f"detect_positions: {now_positions}")
         real_positions = detector.get_real_positions(drow, dcol)  # ground truth
         avage_error, localization_error_l2, foots_error, max_error_number = detector.accuracy_estimate(real_positions, now_positions)
         detector.position_check(now_positions,debug=True)
@@ -679,9 +762,9 @@ def debug4():
     """
     current_dir = os.path.dirname(__file__)
     parent_dir = os.path.dirname(current_dir)
-    img_dir = os.path.join(parent_dir, 'img', "2025-09-25")
-    labels = os.path.join(parent_dir, 'config', 'labels.xlsx')
-    info_path = os.path.join(parent_dir, 'config', 'update_log3.xlsx')
+    img_dir = os.path.join(parent_dir, 'img', "2025-09-26")
+    labels = os.path.join(parent_dir, 'config', 'lables2.xlsx')
+    info_path = os.path.join(parent_dir, 'config', 'update_log44.xlsx')
     df = pd.read_excel(labels)
     info_dic = {
         'id':[],
@@ -700,7 +783,7 @@ def debug4():
         id = df.loc[num].id
         col = df.loc[num].col
         row = df.loc[num].row
-        return row, col, id+2
+        return int(row), int(col), int(id+2)
     
     init_row,init_col,idx = data_load(0)
     detector = NormalDetector(row=init_row,col=init_col)
@@ -726,7 +809,7 @@ def debug4():
         return
     update_flag = True
     update_from_mapped = False
-    for i in np.arange(0,42):
+    for i in np.arange(0,25):
         # i=13时更新的外参有问题，导致之后的偏差累积
         print(f"================================{i}================================")
         row,col,idx = data_load(i)
@@ -761,4 +844,4 @@ def debug4():
     detector.exit()
 
 if __name__ == '__main__':
-    debug2()
+    debug4()
