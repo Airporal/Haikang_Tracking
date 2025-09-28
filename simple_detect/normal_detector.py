@@ -809,7 +809,7 @@ def debug4():
         return
     update_flag = True
     update_from_mapped = False
-    for i in np.arange(0,25):
+    for i in range(0,25):
         # i=13时更新的外参有问题，导致之后的偏差累积
         print(f"================================{i}================================")
         row,col,idx = data_load(i)
