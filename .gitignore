@@ -1,3 +1,6 @@
 /SdkLog_Python/
 /.idea/
 /img/
+__pycache__/
+*.py[cod]
+*$py.class
