@@ -12,7 +12,7 @@ class locator:
         self.camera_matrix = camera_data['camera_matrix']
         self.dist_coeffs = camera_data['dist_coeffs']
         
-        self.marker_length = 0.041 # aruco标记边长 in meters
+        self.marker_length = 0.035 # aruco标记边长 in meters 大的是0.037 小的是0.035
         self.draw_flag = draw_flag  # 绘图
         
         self.aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_5X5_50)
@@ -21,8 +21,11 @@ class locator:
         self.extrinsic = None
         
         self.update_exterinsic_threshold = 3  # 用于记录更新外参的aruco码数量阈值
-        
-        self.now_positions = None
+        # 首先更新此内容，注意腿的分布是0-1-2-3 对应 1-2-3-4
+        self._init_robot_c  = np.array([37*43.301, 450]) # 机体中心
+        self._init_leg_dev  = np.array([194.85, 62.5])
+        self._init_leg_quad = np.array([[1, -1], [-1, -1], [-1, 1], [1, 1]])
+        self._init_robot_positions() # 用于记录当前获取的位置，用于后续更新外参, 初始化必须更新
     
     # -------------------- aruco检测模块 -------------------- #
     # @stopwatch
@@ -31,6 +34,7 @@ class locator:
             耗时90ms
             检测aruco码并返回aruco码的3D坐标和姿态估计
             确保markers的顺序与初始标定一致
+            update 表示保存当前检测的锚点坐标
         """
         # 如果传入地址，则读取, 如果是图片则直接赋值
         if isinstance(image_file, str):
@@ -39,15 +43,20 @@ class locator:
             image = image_file
         # 图像增强
         show_img = image.copy()
+        # show_cv(show_img,"image")
         image = self._enhance_img(image) # 0.02
-        # 检测aruco码
+        # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # show_cv(gray,"gray")
+        # 检测aruco码 
+        
         corners, ids, _ = self.detector.detectMarkers(image) # 0.036
         # 下面的过程耗时小于9ms
         if ids is not None:
             # 角点亚像素增强
             corners = self._refine_corner(corners,image)
 
-            # 从大到小排列
+            # 从大到小排列3-2-1-0
             sorted_indices = np.argsort(ids.flatten())[::-1]
             corners_sorted = [corners[i] for i in sorted_indices]
             ids_sorted = ids[sorted_indices]
@@ -62,23 +71,31 @@ class locator:
                 marker_list.append(tvecs[i].reshape(3) - anchor)
                 marker_dict[idx[0]] = marker_list[-1]
             marker_list = np.array(marker_list)
-            # self._show_debug(marker_dict)
+            self._show_debug(marker_dict)
             if update==True:
                 self.markers = np.array(marker_list) # 用于更新参数
+                
             if self.draw_flag:
                 # 此处耗时8ms
-                self._show_markers(show_img, corners_sorted, ids_sorted, rvecs, tvecs)
+                # self._show_markers(show_img, corners_sorted, ids_sorted, rvecs, tvecs)
+                cv2.aruco.drawDetectedMarkers(show_img, corners_sorted, ids_sorted)
+                # 根据aruco码的位姿标注出对应的xyz轴
+                for r, t in zip(rvecs, tvecs):
+                    cv2.drawFrameAxes(show_img, self.camera_matrix,
+                                    self.dist_coeffs, r, t,  self.marker_length, 2)
                 # show_3D(self.markers)
-            return marker_list, marker_dict
+            return marker_list, marker_dict, show_img
         else:
-            return None, None
+            # 没有检测的aruco码,返回None
+            print("None aruco")
+            return None, None, show_img
         
     def get_pos_2D(self,points, mode=3,save_position=True):
         """
             用于直接获取映射后的2D坐标点,
             不移动时，设置save_position=True，会记录当前获取的位置，用于后续更新外参
         """
-        if points == None:
+        if points is None:
             return None
         affine_points = get_2D_plane_pos(points, use_ABCD=True) # 4x2
         mapped_points = None
@@ -109,7 +126,7 @@ class locator:
         if real_positions is None:
             real_positions = self._get_real_positions(img_num) # 设置真实位置
         else:
-            real_positions = real_positions
+            real_positions = real_positions #4x3
         # print(f"real_positions: {real_positions}")
         
         # 只保留当前检测到的 marker 对应的真实位置
@@ -229,6 +246,25 @@ class locator:
             result_list.append(mapped_point)
         return np.vstack(result_list)
     
+    def _init_robot_positions(self):
+        """
+            测量并初始化机器人的位置
+                TODO 机器人中心的行列值、 
+        """
+        try:
+            prior_devia = self._init_leg_quad * self._init_leg_dev
+            prior_holes = self._init_robot_c + prior_devia
+            self.now_positions = prior_holes
+            print(f"👍 Init robot positions Success{self.now_positions}!")
+        except:
+            print("初始化位置错误！")
+            self.now_positions = np.array([
+                [0,0],
+                [0,0],
+                [0,0],
+                [0,0],
+            ])
+        
     @staticmethod
     def _get_real_positions(img_num):
         """
@@ -237,6 +273,7 @@ class locator:
         # 设置初始化机器足圆孔位置,机器人中心位置,机器人四个足端位置
         robot_c  = np.array([526.311, 787.5]) # 机体中心
         leg_dev  = np.array([64.9515, 150])
+        # 4、3、2、1腿坐标
         leg_quad = np.array([[1, -1], [1, 1], [-1, 1], [-1, -1]])
         prior_devia = leg_quad * leg_dev
         prior_holes = robot_c + prior_devia
@@ -267,8 +304,10 @@ class locator:
             计算精度, 输入aruco码的检测坐标列表, 图像的真实坐标，返回精度评估值
             points: aruco码的二维坐标新监测的点
             image_num: 图像编号，用于获取真实坐标
+            TODO get_2D_plane_pos
         """
         real_points = self._get_real_positions(image_num) # 4x2
+        # real_points = self.now_positions
         affine_points = get_2D_plane_pos(points, use_ABCD=True) # 4x2
         if mode == 2:
             # 2D
@@ -278,7 +317,9 @@ class locator:
             mapped_points = self.apply_affine_transform(affine_points) # 4x2
         else:
             print("mode error")
-        
+        print("m:",mapped_points)
+        mapped_points = [mapped_points[0],mapped_points[1],[0,0],mapped_points[2]]
+        print("detect: ",mapped_points)
         localization_error_avg  = np.mean(np.linalg.norm(abs(real_points - mapped_points), axis=1))
         localization_error_l2  = np.max(np.linalg.norm(abs(real_points - mapped_points), axis=1))
         foots_error = np.linalg.norm(abs(real_points - mapped_points), axis=1)
@@ -306,8 +347,9 @@ class locator:
         cv2.namedWindow('Markers', cv2.WINDOW_NORMAL)
         cv2.resizeWindow('Markers', show_img.shape[1], show_img.shape[0])
         cv2.imshow('Markers', show_img)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(0) & 0xFF == ord('q'):
             cv2.destroyAllWindows()
+        
     
     @staticmethod
     def _show_debug(markers_dict):
@@ -347,31 +389,54 @@ class locator:
         image = image_smothed
         return image
 
-
+def debug():
+    current_dir = os.path.dirname(__file__)
+    # 父目录
+    parent_dir = os.path.dirname(current_dir)
+    img_dir = os.path.join(parent_dir, 'img','camera_tilt')
+    img_path = os.path.join(parent_dir,'img','img3.jpg')
+    src_image_file = os.path.join(img_dir, str(2) + '.jpg')
+    INTRINSIC = os.path.join(parent_dir, 'config','camera_calibration.npz')
+    mylocator = locator(INTRINSIC)
+    mylocator.detect_markers(img_path,update=False)
     
+def show_cv(img,name):
+    cv2.imshow(name,img)
+    # cv2.imshow('Markers', show_img)
+    if cv2.waitKey(0) & 0xFF == ord('q'):
+        cv2.destroyAllWindows()
+
 if __name__ == '__main__':
+    # debug()
     current_dir = os.path.dirname(__file__)
     # 父目录
     parent_dir = os.path.dirname(current_dir)
     INTRINSIC = os.path.join(parent_dir, 'config','camera_calibration.npz')
-    img_dir = os.path.join(parent_dir, 'img','camera_tilt')
-    src_img_num = 1
+    img_dir = os.path.join(parent_dir, 'img',"RIGHT")
+    src_img_num = 0
     locator = locator(INTRINSIC)
-    while src_img_num <= 10:
-        dst_img_num = src_img_num + 1
-        src_image_file = os.path.join(img_dir, str(src_img_num) + '.jpg')
-        dst_image_file = os.path.join(img_dir, str(dst_img_num) + '.jpg')
-        src_3D_points, src_marker_dict = locator.detect_markers(src_image_file, update=True)
-        dst_3D_points, dst_marker_dict = locator.detect_markers(dst_image_file, update=False)   
+    # while src_img_num <= 2:
+    dst_img_num = src_img_num + 3
+    src_image_file = os.path.join(img_dir, str(src_img_num) + '.png')
+    dst_image_file = os.path.join(img_dir, str(dst_img_num) + '.png')
+    # 识别图片0的像素位置
+    src_3D_points, src_marker_dict, _ = locator.detect_markers(src_image_file, update=True)
+    real_positions = locator.now_positions
+    print(f"real_positions: {real_positions}")
+    real_positions = np.array([real_positions[0],real_positions[1],real_positions[3]])
+    extrinsic_lstsq = locator.update_extrinsic_from_lstsq(real_positions=real_positions) 
+    dst_3D_points, dst_marker_dict, _ = locator.detect_markers(dst_image_file, update=False)
+    locator.accuracy_estimate(dst_3D_points, dst_img_num, mode = 3)
         # 更新外参
         # extrinsic_lm = locator.update_extrinsic_from_LM(src_img_num) 
         # locator.accuracy_estimate(dst_3D_points, dst_img_num, mode = 3) 
         # extrinsic_2D = locator.update_extrinsic_2D(src_img_num) 
         # locator.accuracy_estimate(dst_3D_points, dst_img_num, mode = 2) 
-        extrinsic_lstsq = locator.update_extrinsic_from_lstsq(src_img_num) 
-        locator.accuracy_estimate(dst_3D_points, dst_img_num, mode = 3)
+
+        
+        
         
     
-        src_img_num +=1
+        # src_img_num +=1
         
      
