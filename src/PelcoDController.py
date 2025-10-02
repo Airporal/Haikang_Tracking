@@ -1,21 +1,17 @@
 import serial
-import serial.rs485
 import serial.tools.list_ports
 import time
+class PelcoDPTZ:
+    """
+    Pelco-D 协议云台控制类
+    仅支持运动控制（上下左右+组合方向），无反馈
+    """
 
-class PelcoDController:
-    """
-        使用RS485控制海康摄像头云台，可以运动但没有反馈
-        控制云台水平和俯仰旋转
-    """
     def __init__(self, baudrate=9600, timeout=0.1, address=1):
         self.port = self._find_port()
         if not self.port:
-            raise RuntimeError("未检测到 CH340 RS‑485 适配器")
+            raise RuntimeError("未检测到 CH340 RS-485 适配器")
         self.ser = serial.Serial(self.port, baudrate=baudrate, timeout=timeout)
-        self.ser.rs485_mode = serial.rs485.RS485Settings(
-            rts_level_for_tx=True, rts_level_for_rx=False, loopback=False
-        )
         self.address = address
 
     def _find_port(self):
@@ -25,49 +21,58 @@ class PelcoDController:
         return None
 
     @staticmethod
-    def _compute_checksum(pkt: bytes) -> int:
+    def _checksum(pkt: bytes) -> int:
         return sum(pkt[1:6]) % 256
 
-    def send_packet(self, cmd2: int, data1: int = 0, data2: int = 0):
+    def _send(self, cmd1: int, cmd2: int, data1: int = 0, data2: int = 0):
         pkt = bytearray(7)
         pkt[0] = 0xFF
         pkt[1] = self.address
-        pkt[2] = 0x00
-        pkt[3] = cmd2
+        pkt[2] = cmd1 & 0xFF
+        pkt[3] = cmd2 & 0xFF
         pkt[4] = data1 & 0xFF
         pkt[5] = data2 & 0xFF
-        pkt[6] = self._compute_checksum(pkt)
+        pkt[6] = self._checksum(pkt)
         self.ser.write(pkt)
 
-    def pan_to_angle(self, angle_deg: float):
-        """旋转云台到指定绝对角度（单位度）"""
-        pos = int(angle_deg * 100)
-        if not (0 <= pos <= 35999):
-            raise ValueError("Pan angle must be within 0–359.99°")
-        high = (pos >> 8) & 0xFF
-        low = pos & 0xFF
-        self.send_packet(cmd2=0x4B, data1=high, data2=low)
-        time.sleep(0.1)  # 建议等待100ms后再发送其他位置命令
+    # ------------------- 云台方向控制 -------------------
+    def left(self, speed: int = 0x20):
+        self._send(0x00, 0x04, data1=speed, data2=0)
 
-    def tilt_to_angle(self, angle_deg: float):
-        """设置云台俯仰到绝对角度（单位度）"""
-        pos = int(angle_deg * 100)
-        if not (0 <= pos <= 35999):
-            raise ValueError("Tilt angle must be within 0–359.99°")
-        high = (pos >> 8) & 0xFF
-        low = pos & 0xFF
-        self.send_packet(cmd2=0x4D, data1=high, data2=low)
-        time.sleep(0.1)
+    def right(self, speed: int = 0x20):
+        self._send(0x00, 0x02, data1=speed, data2=0)
+
+    def up(self, speed: int = 0x20):
+        self._send(0x00, 0x08, data1=0, data2=speed)
+
+    def down(self, speed: int = 0x20):
+        self._send(0x00, 0x10, data1=0, data2=speed)
+
+    def left_up(self, xspeed: int = 0x20, yspeed: int = 0x20):
+        self._send(0x00, 0x0C, data1=xspeed, data2=yspeed)
+
+    def right_up(self, xspeed: int = 0x20, yspeed: int = 0x20):
+        self._send(0x00, 0x0A, data1=xspeed, data2=yspeed)
+
+    def left_down(self, xspeed: int = 0x20, yspeed: int = 0x20):
+        self._send(0x00, 0x14, data1=xspeed, data2=yspeed)
+
+    def right_down(self, xspeed: int = 0x20, yspeed: int = 0x20):
+        self._send(0x00, 0x12, data1=xspeed, data2=yspeed)
 
     def stop(self):
-        self.send_packet(cmd2=0x00, data1=0, data2=0)
+        """停止云台运动"""
+        self._send(0x00, 0x00, 0, 0)
 
     def close(self):
         self.ser.close()
 
-if __name__ == '__main__':
-    ctrl = PelcoDController(address=1)
-    ctrl.pan_to_angle(0)    # 旋转到 90°
-    # time.sleep(5)
-    # ctrl.tilt_to_angle(30)   # 俯仰至 45°
+
+# ------------------- 测试 -------------------
+if __name__ == "__main__":
+    ctrl = PelcoDPTZ(address=1)
+    ctrl.left_up()   # 速度 0x30
+    time.sleep(1)
+    ctrl.stop()
+
     ctrl.close()

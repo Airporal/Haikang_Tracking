@@ -54,7 +54,8 @@ def calculate_dynamic_sleep(diff_x, diff_y, max_diff, min_sleep, max_sleep):
     # 计算总的距离
     distance = math.sqrt(diff_x ** 2 + diff_y ** 2)
     # 归一化距离并映射到sleep时间
-    sleep_time = min(distance / 400 * 0.1, max_sleep)
+    sleep_time = min(distance / max_diff * 0.1, max_sleep)
+    sleep_time = max(sleep_time, min_sleep)
     return sleep_time
 def draw_trajectory_on_image(image, history_centers, predicted_position):
     # 历史点颜色和尺寸
