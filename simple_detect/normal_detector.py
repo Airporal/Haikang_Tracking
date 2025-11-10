@@ -162,8 +162,9 @@ class NormalDetector:
                 marker_dict[idx[0]] = marker_list[-1]
             marker_list = np.array(marker_list)
             if self.draw_flag:
+                print(f"❤️ids_sorted: {ids_sorted}")
                 # show_3D(self.markers)
-                # self._show_debug(marker_dict)
+                self._show_debug(marker_dict)
                 # 此处耗时8ms
                 cv2.aruco.drawDetectedMarkers(show_img, corners_sorted, ids_sorted)
                 # 根据aruco码的位姿标注出对应的xyz轴
@@ -171,7 +172,7 @@ class NormalDetector:
                     cv2.drawFrameAxes(show_img, self.camera_matrix,
                                     self.dist_coeffs, r, t, 0.02, 2)
                 # cv2.putText(show_img, f"frame freq:{self.freq}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                # self._show_markers(show_img, corners_sorted, ids_sorted, rvecs, tvecs)
+                self._show_markers(show_img, corners_sorted, ids_sorted, rvecs, tvecs)
                 
             marker_list = np.array([[k, *v] for k, v in zip(marker_dict.keys(), marker_list)])
             
@@ -708,7 +709,9 @@ def debug3():
     current_dir = os.path.dirname(__file__)
     parent_dir = os.path.dirname(current_dir)
     img_dir = os.path.join(parent_dir, 'img', "2025-09-26")
-    labels = os.path.join(parent_dir, 'config', 'labels2.xlsx')
+    print(img_dir)
+    labels = os.path.join(parent_dir, 'config', 'lables2.xlsx')
+    print(labels)
     info_path = os.path.join(parent_dir, 'config', 'info2.xlsx')
     df = pd.read_excel(labels)
     
@@ -732,7 +735,7 @@ def debug3():
         print("❌ 外参初始化失败")
         return
     
-    for i in [0, 1, 2, 18, 19, 20, 37, 38, 39]:
+    for i in range(0,25):
         print(f"================================{i}================================")
         row,col,idx = data_load(i)
         drow,dcol = get_drow_dcol(row,col)
@@ -740,6 +743,8 @@ def debug3():
         img_name = "img" + "{:05d}".format(idx) + ".png"
         print(row,col,idx)
         frame = cv2.imread(os.path.join(img_dir, img_name))
+        # cv2.imshow("frame",frame)
+        # cv2.waitKey(0)
         marker_list, marker_dict, show_img = detector.detect_markers(frame)
         if marker_list is None:
             continue
@@ -845,4 +850,4 @@ def debug4():
     detector.exit()
 
 if __name__ == '__main__':
-    debug4()
+    debug3()

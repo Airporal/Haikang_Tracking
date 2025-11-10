@@ -1,5 +1,14 @@
 """
     无UI，根据aruco码定位机器人，并跟踪
+    TAG 
+        初始实例化netPlay类，
+        调用calibrate_init()函数，传入机器人中心的初始行列值：init_row , init_col
+    
+    TODO 
+        get_position()函数，用于获取机器人当前位置，返回行列值
+        同时，如果识别到二维码大于阈值，就更新外参
+        
+        
 """
 from ctypes.wintypes import DWORD
 from HCNetSDK import *
@@ -20,7 +29,7 @@ save_dir = os.path.join(IMG_DIR, DATA)
 os.makedirs(save_dir, exist_ok=True)
 
 class netPlay(devClass):
-    def __init__(self, use_Playctrl = True):
+    def __init__(self, use_Playctrl = True, init_row = 25, init_col = 53):
         super().__init__(use_Playctrl)
         self.jpeg_ready = False
         self.init_flag = False
@@ -42,7 +51,8 @@ class netPlay(devClass):
         self.start_threshold = 300 # 启动跟踪阈值，像素偏差大于此阈值，则开启跟踪
         self.stop_threshold = 100 # 停止跟踪阈值，像素偏差小于此阈值，则不再跟踪
         # 初始化检测器，同时初始化相机内参和机器人初始位置
-        self.detector = NormalDetector(row=25,col=53)  
+        # TODO 不自动初始化，而设置为调用calibrate_init()初始化
+        self.calibrate_init(init_row,init_col) 
         self.dynamic_sleep = 0.02  # 动态休眠时间
         self.frame = None         # ui显示的当前帧
         self.origin_frame = None  # 用于保存图片
@@ -50,12 +60,21 @@ class netPlay(devClass):
         self.fps = 0
         self.center = (0,0)
         self.number = 0
+        # 下面的初始化没有用，只是单纯的赋个初值
         self.mapped_points =[
             [591.2625, 412.5, 1],
             [591.2625, 712.5, 1],
             [461.3595, 712.5, 1],
             [461.3595, 412.5, 1]
         ]
+    
+    def calibrate_init(self,init_row,init_col):
+        try:
+            self.detector = NormalDetector(row=init_row,col=init_col)
+            return True
+        except:
+            print("❌ 初始化检测器失败")
+            return False
         
     def StartWork(self):
         # 用于确保系统头只处理一次
