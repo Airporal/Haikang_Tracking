@@ -162,9 +162,9 @@ class NormalDetector:
                 marker_dict[idx[0]] = marker_list[-1]
             marker_list = np.array(marker_list)
             if self.draw_flag:
-                print(f"❤️ids_sorted: {ids_sorted}")
+                # print(f"❤️ids_sorted: {ids_sorted}")
                 # show_3D(self.markers)
-                self._show_debug(marker_dict)
+                # self._show_debug(marker_dict)
                 # 此处耗时8ms
                 cv2.aruco.drawDetectedMarkers(show_img, corners_sorted, ids_sorted)
                 # 根据aruco码的位姿标注出对应的xyz轴
@@ -172,7 +172,7 @@ class NormalDetector:
                     cv2.drawFrameAxes(show_img, self.camera_matrix,
                                     self.dist_coeffs, r, t, 0.02, 2)
                 # cv2.putText(show_img, f"frame freq:{self.freq}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                self._show_markers(show_img, corners_sorted, ids_sorted, rvecs, tvecs)
+                # self._show_markers(show_img, corners_sorted, ids_sorted, rvecs, tvecs)
                 
             marker_list = np.array([[k, *v] for k, v in zip(marker_dict.keys(), marker_list)])
             
@@ -253,7 +253,7 @@ class NormalDetector:
         self.extrinsic = transformation_matrix
         self.update_inv_extrinsic_from_lstsq(real_positions, idx)
         # print(f"extrinsic: \n{self.extrinsic}")
-        print(f"👍 Update extrinsic with {points_num}: {idx} markers Success!")
+        # print(f"👍 Update extrinsic with {points_num}: {idx} markers Success!")
         return transformation_matrix
     
     def update_extrinsic_from_LM(self,markers=None, real_positions=None):
@@ -347,6 +347,7 @@ class NormalDetector:
     
     def position_check(self,now_positions,debug=False):
         """
+            now_positions: 4x3 机器人当前位置,idx,x,y,如果丢失则-1,-1,-1
             track的目标是在机器人中心像素center偏离图像中心的大小bias超过阈值时，移动云台使得机器人再画面中心
             然而，像素坐标系下机器人四腿和中心没有明显关系，在真实世界中，四腿的位置是确定的，
             此
@@ -366,12 +367,12 @@ class NormalDetector:
         
         
         # 扩展为齐次坐标 (x,y)
-        center_pix = np.dot(np.array([center_real_position[0], center_real_position[1], 1]), self.inv_extrinsic)
+        # center_pix = np.dot(np.array([center_real_position[0], center_real_position[1], 1]), self.inv_extrinsic)
         # print(f"center_pix: {center_pix}")
         cx = self.frame_shape[1]//2
         cy = self.frame_shape[0]//2
-        dx = int(center_pix[0])-cx
-        dy = int(center_pix[1])-cy
+        dx = int(self.center[0])-cx
+        dy = int(self.center[1])-cy
         bias = [dx,dy]
         # print(f"{cx,cy,dx,dy}")
         # if self.track == False:
@@ -392,8 +393,8 @@ class NormalDetector:
                 self.track = False
         if debug:
             print(f"now_positions: \n{now_positions}")
-            print(f"{self.track,bias,center_pix,self.center,center_row,center_col}")
-        return self.track,bias,center_pix,centers
+            print(f"{self.track,bias,self.center,self.center,center_row,center_col}")
+        return self.track,bias,self.center,centers
     
     def apply_affine_lm(self,points,save_position=True):
 
@@ -454,6 +455,25 @@ class NormalDetector:
     # A = [[-0.30247716,-0.36422648,1.14859131,1.],[-0.67998635,-0.38195501,1.09937052,1.],[-0.67218116,-0.48985796,1.11999488,1.],[-0.30270646,-0.48042111,1.18473472,1]]
     # e_13 = [[1050.73572489,-555.61167445],[-18.19272545,12.27010767],[-90.78275802,3925.69243183],[1826.73771046,-3710.98887328]]
     # e_12=[[974.06049138,104.27103216],[110.85320959,-1196.50187715],[403.43566128,-359.77120179],[1279.32549556,996.71687872]]
+    
+    def modify_legs_position(self, leg_positions):
+        """
+            根据行列坐标修改腿部位置
+            输入：leg_positions 4x3 行列坐标 idx,x0,y0 丢失则-1,-1，-1
+            输出：real_positions 4x3 真实坐标 idx,x,y
+        """
+        idx = np.where(leg_positions[:, 1] != -1)[0] # 非-1的行索引
+        # for i,idx in enumerate(idxs):
+        legs_col = 1 + np.round((leg_positions[:,1] *2)/43.301)  # col坐标，
+        legs_row = 1 + np.round((leg_positions[:,2] *2)/25)  # row坐标
+        
+        leg_positions[idx,1] = ((legs_col-1)*43.301/2)[idx]
+        leg_positions[idx,2] = ((legs_row-1)*25.0/2)[idx]
+
+        # 补全下面的代码，使得leg_positions为校正后的坐标。
+        return leg_positions
+    
+    
     # -------------------- 精度分析模块 -------------------- #
     def accuracy_estimate(self, real_position, now_positions):
         """

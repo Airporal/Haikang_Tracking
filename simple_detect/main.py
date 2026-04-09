@@ -1,14 +1,6 @@
 """
-    无UI，根据aruco码定位机器人，并跟踪
-    TAG 
-        初始实例化netPlay类，
-        调用calibrate_init()函数，传入机器人中心的初始行列值：init_row , init_col
-    
-    TODO 
-        get_position()函数，用于获取机器人当前位置，返回行列值
-        同时，如果识别到二维码大于阈值，就更新外参
-        
-        
+    TODO
+        实现外部接口     
 """
 from ctypes.wintypes import DWORD
 from HCNetSDK import *
@@ -29,46 +21,10 @@ save_dir = os.path.join(IMG_DIR, DATA)
 os.makedirs(save_dir, exist_ok=True)
 
 class netPlay(devClass):
-    def __init__(self, use_Playctrl = True, init_row = 25, init_col = 53):
+    def __init__(self, use_Playctrl = True):
         super().__init__(use_Playctrl)
-        self.jpeg_ready = False
-        self.init_flag = False
-        self.init_detect_flag = False
-        self.track = False  # 是否跟随目标
-        self.move_position = True  # 用于mannual模式控制移动
-        self.please_update_extrinsic = False  # 用于记录是否需要更新外参
-        self.update_exterinsic_threshold = 2  # 用于记录更新外参的aruco码数量阈值
-        
-        self.FuncDecCB = None
-        self.running = True  # 程序运行标志
-        self.prev_frame_time = 0  # 上一帧时间
-        self.new_frame_time = 0  # 当前帧时间
-        self.history_centers = []  # 存储历史中心点坐标
-        self.bias = [] # 保存像素偏差量
-        self.max_history = 10  # 最大历史记录数
-        
-        self.threshold = 100  # 跟随阈值,像素偏差小于此值则不调整
-        self.start_threshold = 300 # 启动跟踪阈值，像素偏差大于此阈值，则开启跟踪
-        self.stop_threshold = 100 # 停止跟踪阈值，像素偏差小于此阈值，则不再跟踪
-        # 初始化检测器，同时初始化相机内参和机器人初始位置
-        # TODO 不自动初始化，而设置为调用calibrate_init()初始化
-        self.calibrate_init(init_row,init_col) 
-        self.dynamic_sleep = 0.02  # 动态休眠时间
-        self.frame = None         # ui显示的当前帧
-        self.origin_frame = None  # 用于保存图片
-        
-        self.fps = 0
-        self.center = (0,0)
-        self.number = 0
-        # 下面的初始化没有用，只是单纯的赋个初值
-        self.mapped_points =[
-            [591.2625, 412.5, 1],
-            [591.2625, 712.5, 1],
-            [461.3595, 712.5, 1],
-            [461.3595, 412.5, 1]
-        ]
     
-    def calibrate_init(self,init_row,init_col):
+    def _calibrate_init(self,init_row,init_col):
         try:
             self.detector = NormalDetector(row=init_row,col=init_col)
             return True
@@ -76,8 +32,10 @@ class netPlay(devClass):
             print("❌ 初始化检测器失败")
             return False
         
-    def StartWork(self):
-        # 用于确保系统头只处理一次
+    def _startWork(self):
+        """
+            打开相机取流
+        """
         @CFUNCTYPE(None, c_long, DWORD, POINTER(c_ubyte), DWORD, c_void_p)
         def RealDataCallBack_V30(lRealHandle, dwDataType, pBuffer, dwBufSize, pUser):
             if dwDataType == NET_DVR_SYSHEAD and not self.init_flag:
@@ -180,80 +138,37 @@ class netPlay(devClass):
         if not self.jpeg_ready:
             print("❌ 解码器3秒内未准备好，GetJPEG 会失败")
             return
-        self.prev_frame_time = time.time()
-        try:
+
+    def _initExtrinsic(self, force_reinit = False, show = False):
+        if show:
             cv2.namedWindow(f"Hikvision", cv2.WINDOW_NORMAL)
-            dx = 0
-            dy = 0
-            now_positions = [] # 4x3 idx u v
-            while self.running:
-                frame = get_frame_jpeg_cv(self.Playctrldll,self.PlayCtrl_Port)
-                if frame is None:
-                    print("⚠️ 抓图失败，跳过帧")
-                    continue
-                if not self.init_detect_flag: # 第一帧显示需要初始化
-                    # None 表示没有更新成功，同时初始化外参矩阵
-                    init_marker_list, init_marker_dict, show_img = self.detector.init_extrinsic(frame)
-                    self.init_detect_flag = True
-                    now_positions = self.detector.get_now_positions()
-                    continue
-                self.new_frame_time = time.time()
-                self.origin_frame = frame.copy()
-                # 角点检测 marker_list 4x4 idx x y z
-                marker_list, marker_dict, show_img = self.detector.detect_markers(frame)
-                center_pix = self.detector.get_center_pix()
-                self.bias = self.detector.get_bias()
-                if marker_list is None:
-                    continue
-                if self.track:
-                    # 刚动完，需要更新外参
-                    try:
-                        m = self.detector.update_extrinsic_from_lstsq(marker_list, now_positions)
-                        if m is None:
-                            print("继续移动")
-                            self.track_target() # 移动
-                            # cv2.putText(show_img, f"bias:{centers[0]}x{centers[1]}", (int(center_real_position[0]), int(center_real_position[1])-10), cv2.FONT_HERSHEY_SIMPLEX, 1.6, (0, 255, 0), 8)
-                            cv2.imshow("Hikvision", show_img)
-                            if cv2.waitKey(3) & 0xFF == ord('q'):
-                                    break
-                            continue
-                    except:
-                        print("更新外参失败！")
-                # 应用当前外参进行映射估算真实位置 4x3
-                mapped_points = self.detector.apply_affine_transform(marker_list)
+        if self.init_detect_flag and not force_reinit:
+            # 已经初始化过了，不需要再次初始化
+            return True
+        elif self.init_detect_flag and force_reinit:
+            # 已经初始化过了，但需要强制重新初始化
+            self.init_detect_flag = False        
+        init_times = 0
+        while init_times < self.max_retry_times:
+            frame = get_frame_jpeg_cv(self.Playctrldll,self.PlayCtrl_Port)
+            self.frame_shape = frame.shape
+            if frame is None:
+                print("⚠️ 抓图失败，跳过帧")
+                continue
+                # 初始化外参矩阵
+            try:
+                init_marker_list, init_marker_dict, show_img = self.detector.init_extrinsic(frame)
+                self.init_detect_flag = True
                 now_positions = self.detector.get_now_positions()
-                # 计算精度
-                # real_position = self.detector.get_real_positions(dx,dy)
-                # self.detector.accuracy_estimate(real_position,now_positions)
-                # 判断是否需要更新移动 track,bias,center_real_position,centers
-                self.track, bias, center_real_position, centers = self.detector.position_check(now_positions.copy(),debug=True)
-                
-                if self.track:
-                    self.track_target() # 移动
-                self.history_centers.append(centers)
-                if len(self.history_centers)> self.max_history:
-                    self.history_centers.pop(0)
-                wast_time = time.time()-self.new_frame_time
-                self.freq = int(1/(self.new_frame_time-self.prev_frame_time))
-                self.prev_frame_time = self.new_frame_time
-                # print(center_real_position)
-                cv2.circle(show_img,(show_img.shape[1]//2,show_img.shape[0]//2),5,(0,0,255),3)
-                cv2.rectangle(show_img,(show_img.shape[1]//2-self.start_threshold,show_img.shape[0]//2-self.start_threshold),
-                              (show_img.shape[1]//2+self.start_threshold,show_img.shape[0]//2+self.start_threshold),(255,0,0),3)
-                cv2.rectangle(show_img,(show_img.shape[1]//2-self.stop_threshold,show_img.shape[0]//2-self.stop_threshold),
-                              (show_img.shape[1]//2+self.stop_threshold,show_img.shape[0]//2+self.stop_threshold),(255,0,0),3)
-                # cv2.rectangle(show_img,(int(center_real_position[0])-200,int(center_real_position[1])-200),(int(center_real_position[0])+200,int(center_real_position[1])+200),(0,0,255),3)
-                cv2.putText(show_img, f"track:{self.track} bias:{self.bias[0]}x{self.bias[1]},centers:{center_real_position}", (int(center_real_position[0]), int(center_real_position[1])-10), cv2.FONT_HERSHEY_SIMPLEX, 1.6, (0, 255, 0), 8)
-                cv2.rectangle(show_img,(int(center_pix[0])-200,int(center_pix[1])-200),(int(center_pix[0])+200,int(center_pix[1])+200),(0,255,0),3)
-
-                cv2.imshow("Hikvision", show_img)
-                if cv2.waitKey(3) & 0xFF == ord('q'):
-                        break               
-        finally:
-            pass
-
+                return True
+            except:
+                print("❌ 初始化检测器失败")
+                init_times += 1
+                continue
+        return False
+        
     # shape 1080x1920
-    def track_target(self):
+    def _track_target(self):
         # 按下跟随按钮，自动跟踪到stop_threshold, 然后track变为False, 当大于threshold时重新True
         dx = self.bias[0]
         dy = self.bias[1]
@@ -283,7 +198,7 @@ class netPlay(devClass):
             else:
                 self.get_net_error_msg()
         
-    def StopWork(self):
+    def _stopWork(self):
         if self.lRealPlayHandle > -1:
             self.Netsdk.NET_DVR_StopRealPlay(self.lRealPlayHandle)
         if self.PlayCtrl_Port.value > -1:
@@ -291,13 +206,238 @@ class netPlay(devClass):
             self.Playctrldll.PlayM4_CloseStream(self.PlayCtrl_Port)
             self.Playctrldll.PlayM4_FreePort(self.PlayCtrl_Port)
             self.PlayCtrl_Port = c_long(-1)
+    
+    def modify_now_positions(self,now_positions):
+        """
+            根据now_positions映射到行列值，再映射回now_positions
+            :param now_positions: 4x3 映射前的位置
+            :return: 4x3 校正后的位置
+        """
+        now_positions = self.detector.modify_legs_position(now_positions)
+        
+        return now_positions
+    
+    # 外部调用接口
+    def init_haikang(self, init_row, init_col):
+        """
+            初始化相机并更新外参矩阵
+            :param init_row: 机器人中心初始行
+            :param init_col: 机器人中心初始列
+
+        """
+        # 重置状态，等待首次外参初始化流程在主循环中运行
+        self.jpeg_ready = False
+        self.init_flag = False
+        self.init_detect_flag = False
+        self.track = False  # 是否跟随目标
+        self.please_update_extrinsic = False  # 用于记录是否需要更新外参
+        self.update_exterinsic_threshold = 2  # 用于记录更新外参的aruco码数量阈值
+        
+        self.FuncDecCB = None
+        self.prev_frame_time = 0  # 上一帧时间
+        self.new_frame_time = 0  # 当前帧时间
+        self.bias = [] # 保存像素偏差量
+        
+        self.threshold = 100  # 跟随阈值,像素偏差小于此值则不调整
+        self.start_threshold = 300 # 启动跟踪阈值，像素偏差大于此阈值，则开启跟踪
+        self.stop_threshold = 100 # 停止跟踪阈值，像素偏差小于此阈值，则不再跟踪
+        self.max_retry_times = 10  # 最大重试次数
+        self.dynamic_sleep = 0.02  # 动态休眠时间
+         
+        ok = self._calibrate_init(init_row,init_col) # 读取内参，计算机器人初始位置
+        if not ok:
+            return False
+        # 打开相机
+        if not self.init_sdk():
+            return False
+        # 登录设备
+        if not self.NetLogin():
+            return False
+        self.GeneralSetting()  # 设置日志和播放库通道
+        self._startWork()  # 执行工作
+        return self._initExtrinsic()  # 初始化外参
+    
+    def _weather_continue_track(self):
+        """
+            获取当前识别的机器人中心位置
+            并判断是否需要跟踪, 更新self.track, self.bias
+        """
+        detect_times = 0
+        while detect_times < self.max_retry_times:
+            frame = None
+            get_frame_times = 0
+            while frame is None and get_frame_times < self.max_retry_times:
+                frame = get_frame_jpeg_cv(self.Playctrldll,self.PlayCtrl_Port)
+                get_frame_times += 1
+            # 角点检测 marker_list 4x4 idx x y z，此处用于更新中点像素位置
+            self.detector.detect_markers(frame)
+            # 判断当前需要移动还是停止
+            self.track, self.bias, _, _ = self.detector.position_check(self.now_positions.copy(),debug=False)
+            return self.track
+        return self.track
+    
+    def get_now_center_positions(self,show=False):
+        """
+            获取当前识别位置，已经使用管板行列校正
+            show表示是否显示图像
+            更新self.marker_list、self.now_positions用于后续更新外参
+            更新self.track, self.bias用于移动相机
+            return:
+                机器人中心的行列位置
+        """
+        # 获取当前识别的机器人中心位置
+        detect_times = 0
+        while detect_times < self.max_retry_times:
+            frame = None
+            get_frame_times = 0
+            while frame is None and get_frame_times < self.max_retry_times:
+                frame = get_frame_jpeg_cv(self.Playctrldll,self.PlayCtrl_Port)
+                get_frame_times += 1
+            # 角点检测 marker_list 4x4 idx x y z
+            self.marker_list, marker_dict, show_img = self.detector.detect_markers(frame)
+            # 中心像素及其偏差，用于判断是否需要移动相机
+            center_pix = self.detector.get_center_pix()
+        
+            if self.marker_list is None:
+                detect_times += 1
+                continue
+
+                    
+            # 应用当前外参进行映射估算真实足端位置 4x3
+            mapped_points = self.detector.apply_affine_transform(self.marker_list)
+            now_positions = self.detector.get_now_positions()
+            self.now_positions = self.modify_now_positions(now_positions)  # 修正误差
+        
+            # 判断当前需要移动还是停止
+            # 是否track, 中心像素偏差，中心的x、y位置, 中心的行列位置
+            self.track, self.bias, center_real_position, centers = self.detector.position_check(self.now_positions.copy(),debug=True)
+
+            if show:
+                self.freq = int(1/(self.new_frame_time-self.prev_frame_time))
+                self.prev_frame_time = self.new_frame_time
+                # print(center_real_position)
+                cv2.circle(show_img,(show_img.shape[1]//2,show_img.shape[0]//2),5,(0,0,255),3)
+                cv2.rectangle(show_img,(show_img.shape[1]//2-self.start_threshold,show_img.shape[0]//2-self.start_threshold),
+                                (show_img.shape[1]//2+self.start_threshold,show_img.shape[0]//2+self.start_threshold),(255,0,0),3)
+                cv2.rectangle(show_img,(show_img.shape[1]//2-self.stop_threshold,show_img.shape[0]//2-self.stop_threshold),
+                                (show_img.shape[1]//2+self.stop_threshold,show_img.shape[0]//2+self.stop_threshold),(255,0,0),3)
+                # cv2.rectangle(show_img,(int(center_real_position[0])-200,int(center_real_position[1])-200),(int(center_real_position[0])+200,int(center_real_position[1])+200),(0,0,255),3)
+                cv2.putText(show_img, f"track:{self.track} bias:{self.bias[0]}x{self.bias[1]},centers:{center_real_position}", (int(center_real_position[0]), int(center_real_position[1])-10), cv2.FONT_HERSHEY_SIMPLEX, 1.6, (0, 255, 0), 8)
+                cv2.rectangle(show_img,(int(center_pix[0])-200,int(center_pix[1])-200),(int(center_pix[0])+200,int(center_pix[1])+200),(0,255,0),3)
+
+                cv2.imshow("Hikvision", show_img)
+                if cv2.waitKey(3) & 0xFF == ord('q'):
+                    break 
+            
+            return centers
+        return None
+            
+    
+    def move_ptc(self, once=False):
+        """
+            移动ptc, 必须先调用get_now_center_positions立刻调用
+            once表示是否单步移动：
+                True表示只移动一步，继续移动需要到下一次调用
+                False表示持续移动到结束为止
+            return:
+                True表示移动成功
+                False表示移动出错
+        """
+        if self.track:
+            try:
+                if once:
+                    self._track_target() # 移动一步
+                    self.please_update_extrinsic = True
+                    return True
+                else:
+                    # 持续移动到结束为止：
+                    while self.track:
+                        self._track_target() # 移动一步
+                        self._weather_continue_track() # 判断是否继续移动,并更新bias
+                    self.please_update_extrinsic = True
+                    return True
+            except:
+                print("❌ 移动失败")
+                return False
+        return True
+        
+            
+                
+    def update_extrinsic(self, now_row=-1, now_col=-1):
+        '''
+            手动更新外参，由于更新外参需要最新的图像帧，如果相机已经移动了，需要重新识别
+            :param now_row: 机器人中心当前行
+            :param now_col: 机器人中心当前列
+            return:
+                True: 更新成功
+                False: 更新失败
+        '''
+        if now_col == -1 or now_row == -1:
+            # 默认根据识别位置更新外参
+            now_position = self.now_positions
+        else:
+            # 根据真实位置更新外参
+            now_position = self.detector._caculate_legs_position(now_row, now_col)
+            
+        if not self.please_update_extrinsic:
+            # 云台没有移动，不需要重新识别
+            try:
+                m = self.detector.update_extrinsic_from_lstsq(self.marker_list, now_position)
+                if m is None:
+                    return False
+                return True
+            except:
+                print("更新外参失败！")
+                return False
+        else:
+            # 云台移动了，需要重新识别
+            detect_times = 0
+            while detect_times < self.max_retry_times:
+                frame = None
+                get_frame_times = 0
+                while frame is None and get_frame_times < self.max_retry_times:
+                    frame = get_frame_jpeg_cv(self.Playctrldll,self.PlayCtrl_Port)
+                    get_frame_times += 1
+                try:    
+                    # 角点检测 marker_list 4x4 idx x y z
+                    marker_list, _, _ = self.detector.detect_markers(frame)
+                    if marker_list is None:
+                        detect_times += 1   
+                        continue
+                    m = self.detector.update_extrinsic_from_lstsq(marker_list, now_position)
+                    if m is not None:
+                        self.please_update_extrinsic = False
+                        return True
+                    else:
+                        detect_times += 1   
+                except:
+                    detect_times += 1   
+                    continue
+            return False
+
+    
+    
+    def stop_work(self):
+        self._stopWork()  # 停止工作
+        self.NetLogout()  # 登出设备
+        self.NetCleanup()  # 释放资源
+    
 
 if __name__ == '__main__':
     dev = netPlay()  # 初始化参数 + 加载dll
-    dev.init_sdk()  # 初始化sdk
-    dev.NetLogin()  # 登录设备
-    dev.GeneralSetting()   # 设置日志和播放库通道
-    dev.StartWork()  # 执行工作
-    dev.StopWork()  # 停止预览
-    dev.NetLogout()  # 登出设备
-    dev.NetCleanup()  # 释放资源
+    # 初始化函数
+    dev.init_haikang(10, 10)  # 初始化相机并更新外参矩阵
+    n = 0
+    while n<1000:
+        if n % 10 == 0:
+            # 获取当前识别的机器人中心位置
+            centers = dev.get_now_center_positions(show=False)
+            move_flag = dev.move_ptc(once=False)  # 移动ptc,直到抵达中心位置
+            ok = dev.update_extrinsic()  # 更新外参
+            if centers is not None:
+                # 可发送位置
+                print(centers)
+        print(n)
+        n += 1
+
+    dev.stop_work()  # 停止工作

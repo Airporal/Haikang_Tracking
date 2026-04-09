@@ -106,9 +106,11 @@ class devClass:
         self.LoadDll()
         if self.Netsdk.NET_DVR_Init():  # 初始化sdk
             self.show_sdk_version()
+            return True
         else:
             print("❌ SDK初始化失败!")
             self.get_all_error_msg()
+            return False
 
     def NetLogin(self):
         login_info = NET_DVR_USER_LOGIN_INFO()
@@ -124,9 +126,8 @@ class devClass:
             self.get_net_error_msg()
             # 释放资源
             self.Netsdk.NET_DVR_Cleanup()
-            exit()
+            return False
         else:
-            # TODO 显示设备信息
             print("✅ 登录成功!")
         cfg = NET_DVR_CAMERAPARAMCFG_EX()
         cfg.dwSize = sizeof(cfg)
@@ -140,6 +141,8 @@ class devClass:
         else:
             print("❌ 获取设备信息失败!")
             self.get_net_error_msg()
+        return True
+
 
 
     def GeneralSetting(self, logPath=None):
